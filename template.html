@@ -45,7 +45,7 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
 </head>
 <body>
 <script id="md-source" type="text/markdown">@@MD@@</script>
-<header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="document-path"><span id="path-prefix"></span><span id="path-name"></span></span><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div id="search-box" role="search"><input id="search-input" type="search" aria-label="搜索 Markdown 源码" placeholder="搜索全文"><span id="search-count" role="status" aria-live="polite"></span><button id="search-close" type="button" aria-label="关闭搜索">×</button></div><div class="toolbar"><button id="search-toggle" type="button" aria-label="搜索全文">搜索</button><button id="theme-toggle" type="button" aria-label="切换主题">主题</button><button id="edit-toggle" type="button">编辑</button><button id="export-md" type="button" aria-label="导出 Markdown 源码">导出 MD</button><button id="authorize-save" type="button" hidden>授权原地保存</button><button id="save" type="button">下载保存</button></div></header>
+<header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="document-path"><span id="path-prefix"></span><span id="path-name"></span></span><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div id="search-box" role="search"><input id="search-input" type="search" aria-label="搜索 Markdown 源码" placeholder="搜索全文"><span id="search-count" role="status" aria-live="polite"></span><button id="search-close" type="button" aria-label="关闭搜索">×</button></div><div class="toolbar"><button id="search-toggle" type="button" aria-label="搜索全文">搜索</button><button id="theme-toggle" type="button" aria-label="切换主题">主题</button><button id="edit-toggle" type="button">编辑</button><button id="export-md" type="button" aria-label="导出 Markdown 源码">导出 MD</button><button id="save" type="button">保存</button></div></header>
 <div class="layout"><nav id="outline" aria-label="文档大纲"><h2>大纲</h2><div id="outline-links"></div></nav><main id="main"><article id="viewer" class="markdown-body"></article><div id="editor"><div class="source-pane"><pre class="hl-layer editor-text" aria-hidden="true"><code id="highlighted-source"></code></pre><textarea id="source-editor" class="editor-text" spellcheck="false" aria-label="Markdown 源码"></textarea></div><article id="preview" class="markdown-body"></article></div></main><aside id="notes-panel" aria-label="批注"><h2><button id="notes-toggle" type="button" aria-expanded="true">批注</button> <span id="notes-count"></span></h2><div id="notes-content"></div></aside></div>
 <button id="selection-action" type="button">批注</button><div id="note-popover" class="note-popover" role="dialog" aria-label="正文批注"></div><div id="note-form" role="dialog" aria-label="编辑批注"><div id="note-form-quote" class="note-quote"></div><strong id="note-form-title">新建批注</strong><textarea id="note-input" aria-label="批注内容，支持 Markdown"></textarea><div id="note-form-actions"><button id="note-cancel" type="button">取消</button><button id="note-confirm" type="button">确定</button></div></div>
 <script id="marked-library">/**
@@ -1452,7 +1452,6 @@ const currentPath = decodeURIComponent(location.pathname);
 const expectedFileName = currentPath.split("/").pop() || "";
 const displayPath = location.protocol === "file:" ? currentPath : location.origin + currentPath + location.search + location.hash;
 const saveButton = document.getElementById("save");
-const authorizeButton = document.getElementById("authorize-save");
 const documentPath = document.getElementById("document-path");
 const pathEnd = displayPath.lastIndexOf("/") + 1;
 document.getElementById("path-prefix").textContent = displayPath.slice(0, pathEnd);
@@ -1576,10 +1575,8 @@ function updateSaveState() {
     ? (fileHandle ? `已连接：${fileHandle.name}` : rememberedHandle ? "已记住此文件，点击重新连接" : restoringHandle ? "正在检查保存授权" : "未授权")
     : "浏览器不支持原地保存；下载后请手动覆盖原文件";
   connection.title = connection.textContent;
-  authorizeButton.hidden = !canSaveInPlace || !!fileHandle || restoringHandle;
-  authorizeButton.textContent = rememberedHandle ? "重新连接" : "授权原地保存";
   saveButton.disabled = saving || (canSaveInPlace && restoringHandle);
-  saveButton.textContent = canSaveInPlace ? "原地保存" : "下载保存";
+  saveButton.textContent = canSaveInPlace ? "保存" : "下载保存";
 }
 function setStatus(message, error = false) {
   const status = document.getElementById("status");
@@ -2085,16 +2082,6 @@ document.getElementById("export-md").addEventListener("click", () => {
   setStatus("已导出 Markdown");
 });
 saveButton.addEventListener("click", saveDocument);
-authorizeButton.addEventListener("click", async () => {
-  try { await authorizeSave(); }
-  catch (error) {
-    if (error.name !== "AbortError") {
-      const message = `授权失败：${error.message || error}`;
-      setStatus(message, true);
-      alert(message);
-    }
-  }
-});
 document.getElementById("outline-toggle").addEventListener("click", () => {
   const closed = document.body.classList.toggle("outline-closed");
   document.getElementById("outline-toggle").setAttribute("aria-expanded", String(!closed));

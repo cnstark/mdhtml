@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""将 Markdown 封装为可离线查看、编辑的单文件 HTML。"""
+
+import argparse
+import base64
+import html
+import json
+import mimetypes
+from pathlib import Path
+import re
+import sys
+from urllib.parse import unquote, urlsplit
+
+
+ROOT = Path(__file__).resolve().parent
+TEMPLATE_PATH = ROOT / "template.html"
+VERSION = "1.0.0"
+MD_BLOCK = re.compile(r'<script id="md-source" type="text/markdown">(.*?)</script>', re.S)
+NOTES_BLOCK = re.compile(r'<script id="annotations" type="application/json">(.*?)</script>', re.S)
+DRAWIO_BLOCK = re.compile(r'^\s*```drawio(?:\s+[^\n]*)?\n[\s\S]*?^\s*```\s*$', re.I | re.M)
+IMAGE = re.compile(r'(!\[[^\]]*\]\(\s*)(<[^>]+>|[^\s)]+)([^\n)]*\))')
+IMAGE_REF = re.compile(r'(?m)^(\s*\[[^\]]+\]:\s*)(<[^>]+>|\S+)(.*)$')
+
+
+class ChineseArgumentParser(argparse.ArgumentParser):
+    def format_help(self):
+        return (super().format_help()
+                .replace('usage:', '用法：')
+                .replace('positional arguments:', '位置参数：')
+                .replace('optional arguments:', '选项：')
+                .replace('options:', '选项：'))
+
+    def error(self, message):
+        self.exit(2, f'错误：{message}\n{self.format_help()}')
+
+
+def escape_markdown(value):
+    """先加倍反斜杠，再转义 script 结束标签；与模板内 JS 保持一致。"""
+    return re.sub(r'</script', r'<\\/script', value.replace('\\', '\\\\'), flags=re.I)
+
+
+def decode_markdown(value):
+    return re.sub(r'<\\/script', '</script', value, flags=re.I).replace('\\\\', '\\')
+
+
+def safe_json(value):
+    return re.sub(r'</script', r'<\\/script', json.dumps(value, ensure_ascii=False), flags=re.I)
+
+
+def image_destination(raw, base_dir, embed, warnings):
+    bracketed = raw.startswith('<') and raw.endswith('>')
+    destination = raw[1:-1] if bracketed else raw
+    parsed = urlsplit(destination)
+    if parsed.scheme or parsed.netloc or destination.startswith(('#', '//')):
+        return raw
+    path = base_dir / unquote(parsed.path)
+    if not path.is_file():
+        warnings.add(f'图片不存在：{destination}')
+        return raw
+    if not embed:
+        warnings.add(f'本地图片未内联：{destination}（可加 --embed-images）')
+        return raw
+    mime = mimetypes.guess_type(path.name)[0] or 'application/octet-stream'
+    data = base64.b64encode(path.read_bytes()).decode('ascii')
+    return f'data:{mime};base64,{data}'
+
+
+def process_images(source, base_dir, embed):
+    warnings = set()
+
+    def inline(match):
+        return match.group(1) + image_destination(match.group(2), base_dir, embed, warnings) + match.group(3)
+
+    source = IMAGE.sub(inline, source)
+    # 引用式图片的目标定义也可直接内联；普通链接定义会被保留。
+    used = set(re.findall(r'!\[[^\]]*\]\[([^\]]+)\]', source))
+
+    def reference(match):
+        if match.group(1).strip()[1:-2] not in used:
+            return match.group(0)
+        return match.group(1) + image_destination(match.group(2), base_dir, embed, warnings) + match.group(3)
+
+    source = IMAGE_REF.sub(reference, source)
+    return source, sorted(warnings)
+
+
+def template_text():
+    template = TEMPLATE_PATH.read_text(encoding='utf-8')
+    for marker in ('@@TITLE@@', '@@MD@@', '@@ANNOTATIONS@@', '@@TEMPLATE_BASE64@@', '<!--@@VIEWER@@-->'):
+        if template.count(marker) != 1:
+            raise ValueError(f'模板占位符数量异常：{marker}')
+    if f'<meta name="mdhtml-version" content="{VERSION}">' not in template:
+        raise ValueError('模板版本号不匹配')
+    return template
+
+
+def build(args):
+    source_path = Path(args.input)
+    source = source_path.read_text(encoding='utf-8')
+    source, warnings = process_images(source, source_path.parent, args.embed_images)
+    for warning in warnings:
+        print(f'警告：{warning}', file=sys.stderr)
+    template = template_text()
+    heading = re.search(r'^#\s+(.+)$', source, re.M)
+    title = heading.group(1).strip() if heading else source_path.stem
+    template_base64 = base64.b64encode(template.encode('utf-8')).decode('ascii')
+    viewer = ''
+    if DRAWIO_BLOCK.search(source):
+        viewer_code = (ROOT / 'vendor/viewer-static.min.js').read_text(encoding='utf-8')
+        viewer = f'<script id="drawio-viewer">{viewer_code}</script>'
+    output = (template.replace('@@TITLE@@', html.escape(title, quote=True))
+              .replace('@@MD@@', escape_markdown(source))
+              .replace('@@ANNOTATIONS@@', safe_json([]))
+              .replace('@@TEMPLATE_BASE64@@', template_base64)
+              .replace('<!--@@VIEWER@@-->', viewer))
+    output_path = Path(args.output) if args.output else Path(str(source_path) + '.html')
+    output_path.write_text(output, encoding='utf-8')
+    print(f'已生成：{output_path}', file=sys.stderr)
+
+
+def parse_document(path):
+    content = Path(path).read_text(encoding='utf-8')
+    md_matches = list(MD_BLOCK.finditer(content))
+    notes_matches = list(NOTES_BLOCK.finditer(content))
+    if len(md_matches) != 1 or len(notes_matches) != 1:
+        raise ValueError('必须各有一个完整的 md-source 和 annotations 数据块')
+    md, notes = md_matches[0], notes_matches[0]
+    if md.end() >= notes.start() or content[md.end():notes.start()].strip():
+        raise ValueError('数据块顺序错误或 md-source 被提前闭合')
+    raw_md = md.group(1)
+    decoded = decode_markdown(raw_md)
+    if escape_markdown(decoded) != raw_md:
+        raise ValueError('Markdown 数据块转义损坏')
+    try:
+        parsed_notes = json.loads(notes.group(1))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f'批注 JSON 无效：{exc}') from exc
+    if not isinstance(parsed_notes, list):
+        raise ValueError('批注数据必须为 JSON 数组')
+    if not re.search(r'<meta name="mdhtml-version" content="[^\"]+">', content):
+        raise ValueError('缺少模板版本号')
+    return decoded
+
+
+def main():
+    parser = ChineseArgumentParser(description='Markdown 单文件 HTML 构建与提取工具')
+    commands = parser.add_subparsers(dest='command', required=True)
+    build_parser = commands.add_parser('build', help='将 Markdown 构建为 HTML')
+    build_parser.add_argument('input', help='Markdown 文件路径')
+    build_parser.add_argument('-o', '--output', help='输出 HTML 路径，默认在原文件名后加 .html')
+    build_parser.add_argument('--embed-images', action='store_true', help='将本地图片嵌入为 data URI')
+    extract_parser = commands.add_parser('extract', help='提取原始 Markdown 到标准输出')
+    extract_parser.add_argument('input', help='HTML 文件路径')
+    check_parser = commands.add_parser('check', help='校验数据块及转义规则')
+    check_parser.add_argument('input', help='HTML 文件路径')
+    for command_parser in (parser, build_parser, extract_parser, check_parser):
+        for action in command_parser._actions:
+            if action.dest == 'help':
+                action.help = '显示帮助并退出'
+    args = parser.parse_args()
+    try:
+        if args.command == 'build':
+            build(args)
+        elif args.command == 'extract':
+            sys.stdout.write(parse_document(args.input))
+        else:
+            parse_document(args.input)
+            print('校验通过')
+    except (OSError, ValueError) as exc:
+        parser.exit(1, f'错误：{exc}\n')
+
+
+if __name__ == '__main__':
+    main()

@@ -44,10 +44,6 @@ def decode_markdown(value):
     return re.sub(r'<\\/script', '</script', value, flags=re.I).replace('\\\\', '\\')
 
 
-def safe_json(value):
-    return re.sub(r'</script', r'<\\/script', json.dumps(value, ensure_ascii=False), flags=re.I)
-
-
 def image_destination(raw, base_dir, embed, warnings):
     bracketed = raw.startswith('<') and raw.endswith('>')
     destination = raw[1:-1] if bracketed else raw
@@ -119,7 +115,7 @@ def expand_drawio_images(source, base_dir):
 
 def template_text():
     template = TEMPLATE_PATH.read_text(encoding='utf-8')
-    for marker in ('@@TITLE@@', '@@MD@@', '@@ANNOTATIONS@@', '@@TEMPLATE_BASE64@@', '<!--@@VIEWER@@-->'):
+    for marker in ('@@TITLE@@', '@@MD@@', '@@TEMPLATE_BASE64@@', '<!--@@VIEWER@@-->'):
         if template.count(marker) != 1:
             raise ValueError(f'模板占位符数量异常：{marker}')
     if f'<meta name="mdhtml-version" content="{VERSION}">' not in template:
@@ -130,8 +126,12 @@ def template_text():
 def build(args):
     source_path = Path(args.input)
     source = source_path.read_text(encoding='utf-8')
-    source = expand_drawio_images(source, source_path.parent)
-    source, warnings = process_images(source, source_path.parent, args.embed_images)
+    # 末尾批注 JSON 是源码数据，图片和 drawio 替换只作用于正文。
+    annotation_start = re.search(r'(?m)^<!-- mdhtml-annotations\r?$', source)
+    body, annotation_tail = (source[:annotation_start.start()], source[annotation_start.start():]) if annotation_start else (source, '')
+    body = expand_drawio_images(body, source_path.parent)
+    body, warnings = process_images(body, source_path.parent, args.embed_images)
+    source = body + annotation_tail
     for warning in warnings:
         print(f'警告：{warning}', file=sys.stderr)
     template = template_text()
@@ -144,7 +144,6 @@ def build(args):
         viewer = f'<script id="drawio-viewer">{viewer_code}</script>'
     output = (template.replace('@@TITLE@@', html.escape(title, quote=True))
               .replace('@@MD@@', escape_markdown(source))
-              .replace('@@ANNOTATIONS@@', safe_json([]))
               .replace('@@TEMPLATE_BASE64@@', template_base64)
               .replace('<!--@@VIEWER@@-->', viewer))
     output_path = Path(args.output) if args.output else Path(str(source_path) + '.html')
@@ -156,21 +155,27 @@ def parse_document(path):
     content = Path(path).read_text(encoding='utf-8')
     md_matches = list(MD_BLOCK.finditer(content))
     notes_matches = list(NOTES_BLOCK.finditer(content))
-    if len(md_matches) != 1 or len(notes_matches) != 1:
-        raise ValueError('必须各有一个完整的 md-source 和 annotations 数据块')
-    md, notes = md_matches[0], notes_matches[0]
-    if md.end() >= notes.start() or content[md.end():notes.start()].strip():
-        raise ValueError('数据块顺序错误或 md-source 被提前闭合')
+    if len(md_matches) != 1:
+        raise ValueError('必须有一个完整的 md-source 数据块')
+    md = md_matches[0]
+    if notes_matches:
+        print('提示：发现旧 #annotations 数据块；extract 会将其迁入 Markdown，之后可重新 build', file=sys.stderr)
+    after_md = content[md.end():notes_matches[0].start() if notes_matches else content.find('<header', md.end())]
+    if after_md.strip():
+        raise ValueError('md-source 被提前闭合或数据块后存在异常内容')
     raw_md = md.group(1)
     decoded = decode_markdown(raw_md)
     if escape_markdown(decoded) != raw_md:
         raise ValueError('Markdown 数据块转义损坏')
-    try:
-        parsed_notes = json.loads(notes.group(1))
-    except json.JSONDecodeError as exc:
-        raise ValueError(f'批注 JSON 无效：{exc}') from exc
-    if not isinstance(parsed_notes, list):
-        raise ValueError('批注数据必须为 JSON 数组')
+    if notes_matches and not re.search(r'(?m)^<!-- mdhtml-annotations\r?$', decoded):
+        try:
+            old_notes = json.loads(notes_matches[0].group(1))
+        except json.JSONDecodeError as exc:
+            raise ValueError(f'旧批注 JSON 无效：{exc}') from exc
+        if not isinstance(old_notes, list):
+            raise ValueError('旧批注数据必须为 JSON 数组')
+        notes_json = json.dumps(old_notes, ensure_ascii=False, indent=2).replace('-->', '--\\u003e')
+        decoded += ('\n' if decoded.endswith('\n') else '\n\n') + f'<!-- mdhtml-annotations\n{notes_json}\n-->\n'
     if not re.search(r'<meta name="mdhtml-version" content="[^\"]+">', content):
         raise ValueError('缺少模板版本号')
     return decoded

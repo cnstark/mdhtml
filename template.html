@@ -45,7 +45,6 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
 </head>
 <body>
 <script id="md-source" type="text/markdown">@@MD@@</script>
-<script id="annotations" type="application/json">@@ANNOTATIONS@@</script>
 <header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="document-path"><span id="path-prefix"></span><span id="path-name"></span></span><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div id="search-box" role="search"><input id="search-input" type="search" aria-label="搜索 Markdown 源码" placeholder="搜索全文"><span id="search-count" role="status" aria-live="polite"></span><button id="search-close" type="button" aria-label="关闭搜索">×</button></div><div class="toolbar"><button id="search-toggle" type="button" aria-label="搜索全文">搜索</button><button id="theme-toggle" type="button" aria-label="切换主题">主题</button><button id="edit-toggle" type="button">编辑</button><button id="authorize-save" type="button" hidden>授权原地保存</button><button id="save" type="button">下载保存</button></div></header>
 <div class="layout"><nav id="outline" aria-label="文档大纲"><h2>大纲</h2><div id="outline-links"></div></nav><main id="main"><article id="viewer" class="markdown-body"></article><div id="editor"><div class="source-pane"><pre class="hl-layer editor-text" aria-hidden="true"><code id="highlighted-source"></code></pre><textarea id="source-editor" class="editor-text" spellcheck="false" aria-label="Markdown 源码"></textarea></div><article id="preview" class="markdown-body"></article></div></main><aside id="notes-panel" aria-label="批注"><h2><button id="notes-toggle" type="button" aria-expanded="true">批注</button> <span id="notes-count"></span></h2><div id="notes-content"></div></aside></div>
 <button id="selection-action" type="button">批注</button><div id="note-popover" class="note-popover" role="dialog" aria-label="正文批注"></div><div id="note-form" role="dialog" aria-label="编辑批注"><div id="note-form-quote" class="note-quote"></div><strong id="note-form-title">新建批注</strong><textarea id="note-input" aria-label="批注内容，支持 Markdown"></textarea><div id="note-form-actions"><button id="note-cancel" type="button">取消</button><button id="note-confirm" type="button">确定</button></div></div>
@@ -1426,7 +1425,7 @@ const TEMPLATE_BASE64 = "@@TEMPLATE_BASE64@@";
 const TEMPLATE = new TextDecoder().decode(Uint8Array.from(atob(TEMPLATE_BASE64), c => c.charCodeAt(0)));
 const VERSION = "1.0.0";
 const mdBlock = document.getElementById("md-source");
-const annotationBlock = document.getElementById("annotations");
+const legacyAnnotationBlock = document.getElementById("annotations");
 const sourceEditor = document.getElementById("source-editor");
 const highlightLayer = document.querySelector(".hl-layer");
 const highlightedSource = document.getElementById("highlighted-source");
@@ -1434,15 +1433,18 @@ const viewer = document.getElementById("viewer");
 const preview = document.getElementById("preview");
 const viewerScript = document.getElementById("drawio-viewer");
 let markdown = decodeMarkdown(mdBlock.textContent);
-let annotations = JSON.parse(annotationBlock.textContent);
+let annotations = [];
+let invalidAnnotationBlock = false;
+let annotationWarningShown = false;
+const originalMarkdown = markdown;
+const migratedAnnotations = !!legacyAnnotationBlock;
 let editTimer;
 // 长文档解析和 DOM 更新更慢；输入停止后按字符数延长预览等待时间。
 const EDIT_PREVIEW_DEBOUNCE = {mediumFrom:50000, longAbove:200000, shortMs:160, mediumMs:350, longMs:600};
 let fileHandle = null;
 let rememberedHandle = null;
 let restoringHandle = true;
-let savedMarkdown = markdown;
-let savedAnnotations = JSON.stringify(annotations);
+let savedMarkdown = originalMarkdown;
 let saving = false;
 let feedbackTimer;
 const canSaveInPlace = typeof window.showOpenFilePicker === "function";
@@ -1509,13 +1511,49 @@ function safeTitle(value) {
 function escapeHtml(value) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
-function serialize(value, notes) {
+const ANNOTATION_COMMENT = /(^|\n)<!-- mdhtml-annotations\r?\n([\s\S]*?)\r?\n-->[ \t]*(?:\r?\n)*$/;
+function readAnnotations(value) {
+  const match = ANNOTATION_COMMENT.exec(value);
+  if (!match) return {notes:[], invalid:/(^|\n)<!-- mdhtml-annotations(?:\r?\n|$)/.test(value)};
+  try {
+    const notes = JSON.parse(match[2]);
+    if (!Array.isArray(notes)) throw new Error("批注数据不是 JSON 数组");
+    return {notes, invalid:false};
+  } catch (_) { return {notes:[], invalid:true}; }
+}
+function writeAnnotations(value, notes) {
+  const json = JSON.stringify(notes, null, 2).replace(/-->/g, "--\\u003e");
+  const block = `<!-- mdhtml-annotations\n${json}\n-->`;
+  const match = ANNOTATION_COMMENT.exec(value);
+  if (match) return value.slice(0, match.index) + match[1] + block + (match[0].match(/(?:\r?\n)*$/)[0]);
+  return value + (value.endsWith("\n") ? "\n" : "\n\n") + block + "\n";
+}
+function syncAnnotationsFromMarkdown(value) {
+  const result = readAnnotations(value);
+  annotations = result.notes;
+  invalidAnnotationBlock = result.invalid;
+  if (result.invalid && !annotationWarningShown) {
+    annotationWarningShown = true;
+    setStatus("文档末尾批注块无法解析；已按空批注显示，原块保留。", true);
+  }
+}
+function syncMarkdownFromAnnotations() {
+  if (invalidAnnotationBlock) {
+    annotations = [];
+    setStatus("请先修复文档末尾批注块，再修改批注。", true);
+    return false;
+  }
+  markdown = writeAnnotations(markdown, annotations);
+  sourceEditor.value = markdown;
+  updateSaveState();
+  return true;
+}
+function serialize(value) {
   // viewer 不常驻应用代码。旧文件复用已注入源码；新图先保存，再由 CLI 补入 viewer。
   const viewerHtml = containsDrawio(value) && viewerScript
     ? `<script id="drawio-viewer">${viewerScript.textContent}<\/script>` : "";
   return TEMPLATE.replace("@@" + "TITLE@@", escapeHtml(safeTitle(value)))
     .replace("@@" + "MD@@", () => escapeMarkdown(value))
-    .replace("@@" + "ANNOTATIONS@@", () => JSON.stringify(notes).replace(/<[/]script/gi, "<\\/script"))
     .replace("@@" + "TEMPLATE_BASE64@@", TEMPLATE_BASE64)
     .replace("<!--@@" + "VIEWER@@-->", () => viewerHtml);
 }
@@ -1532,7 +1570,7 @@ function currentMarkdown() {
   return document.body.classList.contains("editing") ? sourceEditor.value : markdown;
 }
 function updateSaveState() {
-  document.body.classList.toggle("dirty", currentMarkdown() !== savedMarkdown || JSON.stringify(annotations) !== savedAnnotations);
+  document.body.classList.toggle("dirty", currentMarkdown() !== savedMarkdown);
   const connection = document.getElementById("connection-status");
   connection.textContent = canSaveInPlace
     ? (fileHandle ? `已连接：${fileHandle.name}` : rememberedHandle ? "已记住此文件，点击重新连接" : restoringHandle ? "正在检查保存授权" : "未授权")
@@ -1648,13 +1686,19 @@ async function saveDocument() {
   saving = true;
   saveButton.disabled = true;
   try {
-    const value = currentMarkdown();
-    const notes = JSON.stringify(annotations);
-    const savedInPlace = await persistHtml(serialize(value, annotations));
+    // 编辑器可直接修改末尾注释块；保存前重新解析，保证内存批注与源码一致。
+    if (document.body.classList.contains("editing")) syncAnnotationsFromMarkdown(sourceEditor.value);
+    let value = currentMarkdown();
+    if (!invalidAnnotationBlock && !ANNOTATION_COMMENT.test(value)) {
+      value = writeAnnotations(value, annotations);
+      markdown = value;
+      sourceEditor.value = value;
+      if (document.body.classList.contains("editing")) updateHighlight();
+    }
+    const savedInPlace = await persistHtml(serialize(value));
     markdown = value;
     if (savedInPlace) {
       savedMarkdown = value;
-      savedAnnotations = notes;
       setStatus("已保存");
     } else {
       setStatus("已下载 HTML；请手动覆盖原文件");
@@ -2022,7 +2066,7 @@ function setEditing(editing) {
   document.body.classList.toggle("editing", editing);
   document.getElementById("edit-toggle").textContent = editing ? "查看" : "编辑";
   if (editing) { sourceEditor.value = markdown; updateHighlight(); renderMarkdown(markdown, preview); sourceEditor.focus(); }
-  else { markdown = sourceEditor.value; renderView(); }
+  else { markdown = sourceEditor.value; syncAnnotationsFromMarkdown(markdown); renderView(); }
   if (editing && searchBox.classList.contains("open")) searchSource();
   updateSaveState();
 }
@@ -2072,7 +2116,7 @@ selectionAction.addEventListener("click", () => {
   if (overlaps) { setStatus("选区与已有批注部分重叠，请重新划选。", true); pendingSelection = null; return; }
   if (reattachingNote) {
     const note = annotations.find(item => item.id === reattachingNote);
-    if (note) { note.target.selector = Anchors.makeSelector(pendingSelection.text, interval.start, interval.end); updateSaveState(); renderView(); setStatus("批注已重新挂载"); }
+    if (note) { note.target.selector = Anchors.makeSelector(pendingSelection.text, interval.start, interval.end); syncMarkdownFromAnnotations(); renderView(); setStatus("批注已重新挂载"); }
     reattachingNote = null;
     pendingSelection = null;
     window.getSelection()?.removeAllRanges();
@@ -2098,6 +2142,7 @@ document.getElementById("note-confirm").addEventListener("click", () => {
   }
   closeNoteForm();
   window.getSelection()?.removeAllRanges();
+  syncMarkdownFromAnnotations();
   renderView();
   updateSaveState();
 });
@@ -2109,7 +2154,7 @@ function handleNoteClick(event, inPopover) {
   const action = event.target.closest("button")?.dataset.action;
   if (action === "delete") {
     annotations = annotations.filter(item => item.id !== note.id);
-    renderView(); updateSaveState();
+    syncMarkdownFromAnnotations(); renderView();
   } else if (action === "edit") {
     const rect = card.getBoundingClientRect();
     closeNotePopover();
@@ -2217,6 +2262,18 @@ window.addEventListener("beforeunload", event => {
   event.preventDefault();
   event.returnValue = "";
 });
+syncAnnotationsFromMarkdown(markdown);
+if (migratedAnnotations && !invalidAnnotationBlock) {
+  try {
+    const oldNotes = JSON.parse(legacyAnnotationBlock.textContent);
+    if (!Array.isArray(oldNotes)) throw new Error("旧批注数据不是数组");
+    if (!ANNOTATION_COMMENT.test(markdown)) {
+      annotations = oldNotes;
+      syncMarkdownFromAnnotations();
+    }
+    setStatus("批注已迁移到文档末尾注释块");
+  } catch (_) { setStatus("旧批注块无法解析；原文件仍保留，请检查。", true); }
+}
 updateSaveState();
 renderView();
 restoreHandle();

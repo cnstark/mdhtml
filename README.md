@@ -38,7 +38,7 @@ xxx.md.html = 内联应用代码 + <script type="text/markdown"> 里的 md 源�
 批注 = md 源码末尾的 <!-- mdhtml-annotations [...] --> 注释块（W3C JSON）
 ```
 
-详细设计见 [技术方案.md](docs/技术方案.md)。
+详细设计见 [docs/技术方案.md](docs/技术方案.md)。给 AI agent 用的操作指南见 [skills/mdhtml/SKILL.md](skills/mdhtml/SKILL.md)（批注与 drawio 的格式和编辑流程）。
 
 ## 开发
 

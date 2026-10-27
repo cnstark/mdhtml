@@ -1,0 +1,28 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+
+const template = fs.readFileSync(path.join(__dirname, '..', 'template.html'), 'utf8');
+const start = template.indexOf('const ANNOTATION_COMMENT = ');
+const end = template.indexOf('function syncAnnotationsFromMarkdown(', start);
+const context = vm.createContext({});
+vm.runInContext(template.slice(start, end), context);
+const call = expression => JSON.parse(JSON.stringify(vm.runInContext(expression, context)));
+const created = '2026-10-27T12:00:00.000Z';
+const note = {id:'one', type:'Annotation', created, body:{type:'TextualBody', value:'首轮', format:'text/markdown'}, target:{selector:[]}};
+context.source = `正文\n\n<!-- mdhtml-annotations\n${JSON.stringify([note])}\n-->\n`;
+assert.deepEqual(call('readAnnotations(source).notes[0].body'), [{...note.body, created}]);
+vm.runInContext('var notes = readAnnotations(source).notes; appendNoteReply(notes[0], "第二轮", "2026-10-27T12:01:00.000Z")', context);
+assert.equal(call('notes[0].body.length'), 2);
+assert.equal(call('notes[0].body[1].value'), '第二轮');
+assert.equal(call('notes[0].created'), created);
+vm.runInContext('var saved = writeAnnotations(source, notes); notes = readAnnotations(saved).notes', context);
+assert.equal(call('notes[0].body.length'), 2);
+vm.runInContext('var firstRemoved = readAnnotations(saved).notes; firstRemoved = deleteNoteTurn(firstRemoved, firstRemoved[0], 0)', context);
+assert.equal(call('firstRemoved[0].created'), '2026-10-27T12:01:00.000Z');
+vm.runInContext('notes = deleteNoteTurn(notes, notes[0], 1)', context);
+assert.equal(call('notes[0].body.length'), 1);
+vm.runInContext('notes = deleteNoteTurn(notes, notes[0], 0)', context);
+assert.deepEqual(call('notes'), []);
+console.log('annotation threads: OK');

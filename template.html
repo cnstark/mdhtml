@@ -29,6 +29,7 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
 #notes-panel{width:300px;flex:none;background:#fff;border-left:1px solid #e3e7eb;padding:18px 14px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto}#notes-panel h2{font-size:15px;margin:0 0 12px}#notes-panel h2 button{border:0;background:none;padding:0;font:inherit;color:inherit}#notes-panel h2 button::before{content:"▾";display:inline-block;margin-right:5px;color:#8b98a0;transition:transform .15s}#notes-panel.collapsed h2 button::before{transform:rotate(-90deg)}#notes-panel.collapsed #notes-content{display:none}#notes-panel h3{font-size:13px;color:#925426;margin:20px 0 8px}
 .note-card{border:1px solid #e9edf0;border-radius:10px;margin-bottom:12px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s}.note-card:hover,.note-card.note-linked{border-color:#e9b94a;box-shadow:0 2px 10px rgba(0,0,0,.05)}.note-quote{font-size:12px;color:#8a6d1f;background:#fff8e6;border-left:3px solid #f0c64f;padding:7px 10px;font-style:italic;overflow-wrap:anywhere}.note-card.orphan .note-quote{background:#fdeeee;border-left-color:#d98383;color:#a14545;font-style:normal}.note-orphan-badge{font-size:10px;background:#d98383;color:#fff;border-radius:3px;padding:1px 5px;margin-left:6px;font-style:normal;white-space:nowrap}.note-main{padding:9px 10px}.note-body{font-size:14px;line-height:1.6;overflow-wrap:anywhere}.note-body p{margin:0 0 6px}.note-body p:last-child{margin-bottom:0}.note-foot{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:8px}.note-time{font-size:11px;color:#8b98a0;white-space:nowrap}.note-actions{display:flex;gap:2px;opacity:0;transition:opacity .15s}.note-card:hover .note-actions,.note-card:focus-within .note-actions,.note-popover .note-actions{opacity:1}.note-actions button{border:0;background:none;color:#6b7c86;font-size:12px;padding:2px 6px;border-radius:4px;white-space:nowrap}.note-actions button:hover{background:#f0f3f5;color:#263238}
 .note-popover,#note-form{position:fixed;z-index:31;width:min(230px,90vw);max-width:calc(100vw - 16px);max-height:min(70vh,520px);overflow:auto;background:#fff;border:1px solid #dfe5e9;border-radius:10px;box-shadow:0 6px 24px rgba(20,40,60,.14)}.note-popover{display:none}.note-popover .note-card{border:0;border-radius:0;margin:0;box-shadow:none;cursor:default}.note-popover .note-card+.note-card{border-top:1px solid #e9edf0}.note-popover .note-card:hover{box-shadow:none}.note-popover .note-body{font-size:13px}#selection-action{position:fixed;z-index:30;display:none;box-shadow:0 2px 10px #0002}#selection-action,#note-form button{border:1px solid #cbd5dc;border-radius:5px;background:white;padding:4px 8px;font-size:12px}#note-form{display:none}#note-form-title{display:block;padding:9px 10px 0;font-size:13px}#note-form textarea{display:block;width:calc(100% - 20px);min-height:90px;resize:vertical;margin:8px 10px;font:inherit}#note-form-actions{display:flex;justify-content:flex-end;gap:8px;padding:0 10px 10px}.note-empty{font-size:13px;color:#829099}body.editing #notes-panel{display:none}@media(max-width:800px){#notes-panel{max-height:min(60vh,480px);max-height:min(60dvh,480px);display:flex;flex-direction:column;overflow:hidden}#notes-panel h2{flex:none}#notes-content{min-height:0;overflow-y:auto;overscroll-behavior:contain}.note-actions{opacity:1}.note-foot{flex-wrap:wrap}.note-actions button,#notes-toggle,#selection-action,#note-form button{min-height:36px}.note-card{min-height:36px}}@media(max-width:1050px){.layout{flex-wrap:wrap}#main{flex:0 0 100%}#notes-panel{position:static;width:100%;height:auto;border-left:0;border-top:1px solid #e3e7eb}}@media(max-width:600px){#notes-panel{padding:16px}#notes-panel.collapsed #notes-content{display:none}}
+.note-turn+.note-turn{border-top:1px solid #e9edf0;margin-top:9px;padding-top:9px}.note-card .note-turn .note-actions{opacity:0}.note-card .note-turn:hover .note-actions,.note-card .note-turn:focus-within .note-actions{opacity:1}.note-anchor-actions{justify-content:flex-end;margin-top:4px}.note-reply{display:flex;gap:5px;margin-top:10px;padding-top:9px;border-top:1px solid #e9edf0}.note-reply input{min-width:0;flex:1;border:1px solid #d3dbe2;border-radius:5px;background:#fff;color:inherit;font:inherit;font-size:12px;padding:5px 7px}.note-reply input:focus{outline:2px solid #548ca966;border-color:#548ca9}.note-reply button{border:1px solid #cbd5dc;border-radius:5px;background:#fff;color:#526774;font-size:12px;padding:3px 7px;cursor:pointer}.note-reply button:hover{background:#f0f3f5}@media(max-width:800px){.note-reply input,.note-reply button{min-height:36px}.note-card .note-turn .note-actions{opacity:1}}
 @media(prefers-reduced-motion:reduce){.annotation-mark.flash{animation:none}.note-card,.note-actions{transition:none}}
 
 #preview pre code{display:block;padding:1em;background:#f4f6f8;color:#344551;white-space:pre}
@@ -39,6 +40,7 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
 :root[data-theme="dark"]{color-scheme:dark;color:#d6dee4;background:#151b20}:root[data-theme="dark"] header,:root[data-theme="dark"] #outline,:root[data-theme="dark"] #notes-panel,:root[data-theme="dark"] #preview{background:#1c252c;border-color:#34414a}:root[data-theme="dark"] header button,:root[data-theme="dark"] .toolbar button,:root[data-theme="dark"] #note-form button,:root[data-theme="dark"] .note-actions button,:root[data-theme="dark"] #selection-action{background:#26333c;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] header button:hover,:root[data-theme="dark"] .toolbar button:hover{background:#34444e}:root[data-theme="dark"] #search-input,:root[data-theme="dark"] #note-form textarea{background:#182127;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] .source-pane{background:#182127;border-color:#34414a}:root[data-theme="dark"] #save-state,:root[data-theme="dark"] #search-count,:root[data-theme="dark"] #outline h2,:root[data-theme="dark"] .note-quote,:root[data-theme="dark"] .note-time,:root[data-theme="dark"] .note-empty{color:#9aaab4}:root[data-theme="dark"] #status{color:#89b9d1}:root[data-theme="dark"] #status.error{color:#f09b9b}:root[data-theme="dark"] #outline a{color:#b4c4ce}:root[data-theme="dark"] #outline a:hover,:root[data-theme="dark"] #outline a.active{color:#a9daf2;background:#263d4b}:root[data-theme="dark"] .markdown-body{color:#d6dee4}:root[data-theme="dark"] .markdown-body a{color:#86c5e8}:root[data-theme="dark"] .markdown-body blockquote{color:#a9b8c1;border-color:#52616b}:root[data-theme="dark"] .markdown-body pre,:root[data-theme="dark"] .markdown-body code{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .markdown-body table{box-shadow:0 0 0 1px #38434c}:root[data-theme="dark"] .markdown-body table th,:root[data-theme="dark"] .markdown-body table td{border-color:#38434c}:root[data-theme="dark"] .markdown-body table th{background:#1c252c}:root[data-theme="dark"] .markdown-body table tbody tr:nth-child(2n){background:#1a232a}:root[data-theme="dark"] .markdown-body table tbody tr:hover{background:#23333d}:root[data-theme="dark"] .markdown-body hr{background:#455560;border-color:#455560}:root[data-theme="dark"] .annotation-mark{background:#76602b;color:#fff0c9}:root[data-theme="dark"] .annotation-mark:hover{background:#947638}:root[data-theme="dark"] .note-card,:root[data-theme="dark"] #note-form{background:#202a31;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] .note-card:hover{border-color:#b18c49}:root[data-theme="dark"] #notes-panel h3{color:#d8aa6b}:root[data-theme="dark"] .drawio-missing{background:#453b29;border-color:#846a3d;color:#f1d6a2}:root[data-theme="dark"] .markdown-body .mxgraph{background:#fff;border-radius:8px;padding:8px}:root[data-theme="dark"] #preview pre code{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .search-flash{background:#97753a;color:#fff5d9}
 :root[data-theme="dark"] .hl-layer{color:#d6dee4}:root[data-theme="dark"] #source-editor{background:transparent;color:transparent;caret-color:#d6dee4;-webkit-text-fill-color:transparent}:root[data-theme="dark"] #source-editor::selection{background:#365b78;color:#d6dee4;-webkit-text-fill-color:#d6dee4}:root[data-theme="dark"] .hl-mark,:root[data-theme="dark"] .hl-strike,:root[data-theme="dark"] .hl-fence{color:#8b949e}:root[data-theme="dark"] .hl-heading-mark,:root[data-theme="dark"] .hl-em{color:#bc8cff}:root[data-theme="dark"] .hl-heading-text,:root[data-theme="dark"] .hl-link-text{color:#79c0ff}:root[data-theme="dark"] .hl-heading-level-1{color:#a5d6ff}:root[data-theme="dark"] .hl-heading-level-2{color:#79c0ff}:root[data-theme="dark"] .hl-heading-level-3{color:#7ee2b8}:root[data-theme="dark"] .hl-heading-level-4,:root[data-theme="dark"] .hl-heading-level-5,:root[data-theme="dark"] .hl-heading-level-6{color:#a5b3bf}:root[data-theme="dark"] .hl-quote,:root[data-theme="dark"] .hl-fence-text{color:#a5b3bf}:root[data-theme="dark"] .hl-list{color:#d29922}:root[data-theme="dark"] .hl-strong{color:#ff7b72}:root[data-theme="dark"] .hl-code,:root[data-theme="dark"] .hl-url{color:#a5d6ff}:root[data-theme="dark"] .hl-drawio{color:#56c8c8}
 :root[data-theme="dark"] .annotation-mark.note-linked{background:#947638}:root[data-theme="dark"] .note-card,:root[data-theme="dark"] .note-popover,:root[data-theme="dark"] #note-form{background:#202a31;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] .note-card:hover,:root[data-theme="dark"] .note-card.note-linked{border-color:#b18c49}:root[data-theme="dark"] .note-quote{background:#3a3324;border-color:#c9a44e;color:#ead39b}:root[data-theme="dark"] .note-card.orphan .note-quote{background:#402b30;border-color:#c77b7b;color:#edb1b1}:root[data-theme="dark"] .note-orphan-badge{background:#a65d63}:root[data-theme="dark"] .note-actions button{background:transparent;border:0;color:#b4c4ce}:root[data-theme="dark"] .note-actions button:hover{background:#34444e;color:#edf4f7}:root[data-theme="dark"] .note-popover .note-card+.note-card{border-top-color:#455560}
+:root[data-theme="dark"] .note-turn+.note-turn,:root[data-theme="dark"] .note-reply{border-top-color:#455560}:root[data-theme="dark"] .note-reply input,:root[data-theme="dark"] .note-reply button{background:#182127;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] .note-reply button:hover{background:#34444e}
 
 :root[data-theme="dark"] .hljs{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .hljs-keyword,:root[data-theme="dark"] .hljs-doctag,:root[data-theme="dark"] .hljs-type,:root[data-theme="dark"] .hljs-template-tag,:root[data-theme="dark"] .hljs-variable.language_{color:#ef9ca8}:root[data-theme="dark"] .hljs-title,:root[data-theme="dark"] .hljs-title.class_,:root[data-theme="dark"] .hljs-title.function_{color:#c7a7ee}:root[data-theme="dark"] .hljs-attr,:root[data-theme="dark"] .hljs-attribute,:root[data-theme="dark"] .hljs-literal,:root[data-theme="dark"] .hljs-meta,:root[data-theme="dark"] .hljs-number,:root[data-theme="dark"] .hljs-selector-attr,:root[data-theme="dark"] .hljs-selector-class,:root[data-theme="dark"] .hljs-selector-id,:root[data-theme="dark"] .hljs-variable,:root[data-theme="dark"] .hljs-section{color:#8fbcf2}:root[data-theme="dark"] .hljs-string,:root[data-theme="dark"] .hljs-regexp,:root[data-theme="dark"] .hljs-meta .hljs-string{color:#b2d79a}:root[data-theme="dark"] .hljs-built_in,:root[data-theme="dark"] .hljs-symbol,:root[data-theme="dark"] .hljs-bullet{color:#e6b782}:root[data-theme="dark"] .hljs-comment,:root[data-theme="dark"] .hljs-code,:root[data-theme="dark"] .hljs-formula{color:#94a3ad}:root[data-theme="dark"] .hljs-name,:root[data-theme="dark"] .hljs-quote,:root[data-theme="dark"] .hljs-selector-tag{color:#9bd0b1}:root[data-theme="dark"] .hljs-subst,:root[data-theme="dark"] .hljs-strong,:root[data-theme="dark"] .hljs-emphasis{color:#d6dee4}:root[data-theme="dark"] .hljs-addition{color:#9bd0b1;background:#24392f}:root[data-theme="dark"] .hljs-deletion{color:#ef9ca8;background:#422e35}
 </style>
@@ -1465,6 +1467,7 @@ const noteFormQuote = document.getElementById("note-form-quote");
 const noteInput = document.getElementById("note-input");
 let pendingSelection = null;
 let editingNote = null;
+let editingTurn = null;
 let reattachingNote = null;
 let resolvedNotes = new Map();
 const searchBox = document.getElementById("search-box");
@@ -1517,11 +1520,24 @@ function readAnnotations(value) {
   try {
     const notes = JSON.parse(match[2]);
     if (!Array.isArray(notes)) throw new Error("批注数据不是 JSON 数组");
-    return {notes, invalid:false};
+    return {notes:notes.map(normalizeAnnotation), invalid:false};
   } catch (_) { return {notes:[], invalid:true}; }
 }
+function normalizeAnnotation(note) {
+  const bodies = Array.isArray(note.body) ? note.body : note.body ? [note.body] : [];
+  return {...note, body:bodies.map(body => ({...body, created:body.created || note.created})).sort((a, b) => new Date(a.created) - new Date(b.created))};
+}
+function appendNoteReply(note, value, created = new Date().toISOString()) {
+  note.body.push({type:"TextualBody", value, format:"text/markdown", created});
+}
+function deleteNoteTurn(notes, note, index) {
+  if (note.body.length === 1) return notes.filter(item => item.id !== note.id);
+  note.body.splice(index, 1);
+  note.created = note.body[0].created;
+  return notes;
+}
 function writeAnnotations(value, notes) {
-  const json = JSON.stringify(notes, null, 2).replace(/-->/g, "--\\u003e");
+  const json = JSON.stringify(notes.map(normalizeAnnotation), null, 2).replace(/-->/g, "--\\u003e");
   const block = `<!-- mdhtml-annotations\n${json}\n-->`;
   const match = ANNOTATION_COMMENT.exec(value);
   if (match) return value.slice(0, match.index) + match[1] + block + (match[0].match(/(?:\r?\n)*$/)[0]);
@@ -1686,7 +1702,7 @@ async function saveDocument() {
     // 编辑器可直接修改末尾注释块；保存前重新解析，保证内存批注与源码一致。
     if (document.body.classList.contains("editing")) syncAnnotationsFromMarkdown(sourceEditor.value);
     let value = currentMarkdown();
-    if (!invalidAnnotationBlock && !ANNOTATION_COMMENT.test(value)) {
+    if (!invalidAnnotationBlock) {
       value = writeAnnotations(value, annotations);
       markdown = value;
       sourceEditor.value = value;
@@ -1908,7 +1924,7 @@ function highlightInterval(parts, interval, ids) {
     mark.setAttribute("role", "button");
     mark.setAttribute("aria-label", `查看批注：${mark.textContent || range.toString()}`);
     mark.dataset.noteIds = ids.join(" ");
-    mark.title = ids.map(id => annotations.find(note => note.id === id)?.body?.value || "").join("\n—\n").slice(0, 240);
+    mark.title = ids.map(id => annotations.find(note => note.id === id)?.body?.map(turn => turn.value).join("\n—\n") || "").join("\n—\n").slice(0, 240);
     range.surroundContents(mark);
   }
 }
@@ -1950,26 +1966,53 @@ function noteCard(note, orphaned) {
   }
   const main = document.createElement("div");
   main.className = "note-main";
-  const body = document.createElement("div");
-  body.className = "note-body";
-  body.innerHTML = DOMPurify.sanitize(marked.parse(note.body?.value || ""));
-  const time = document.createElement("div");
-  time.className = "note-time";
-  time.textContent = relativeTime(note.created);
-  time.title = new Date(note.created).toLocaleString("zh-CN");
-  const foot = document.createElement("div");
-  foot.className = "note-foot";
-  const actions = document.createElement("div");
-  actions.className = "note-actions";
-  for (const [action, label] of orphaned ? [["reattach", "重新挂载"], ["delete", "删除"]] : [["edit", "编辑"], ["delete", "删除"]]) {
+  note.body.forEach((turn, index) => {
+    const row = document.createElement("div");
+    row.className = "note-turn";
+    row.dataset.turnIndex = String(index);
+    const body = document.createElement("div");
+    body.className = "note-body";
+    body.innerHTML = DOMPurify.sanitize(marked.parse(turn.value || ""));
+    const time = document.createElement("div");
+    time.className = "note-time";
+    time.textContent = relativeTime(turn.created);
+    time.title = new Date(turn.created).toLocaleString("zh-CN");
+    const foot = document.createElement("div");
+    foot.className = "note-foot";
+    const actions = document.createElement("div");
+    actions.className = "note-actions";
+    for (const [action, label] of [["edit", "编辑"], ["delete", "删除"]]) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.action = action;
+      button.textContent = label;
+      actions.append(button);
+    }
+    foot.append(time, actions);
+    row.append(body, foot);
+    main.append(row);
+  });
+  if (orphaned) {
     const button = document.createElement("button");
     button.type = "button";
-    button.dataset.action = action;
-    button.textContent = label;
+    button.dataset.action = "reattach";
+    button.textContent = "重新挂载";
+    const actions = document.createElement("div");
+    actions.className = "note-actions note-anchor-actions";
     actions.append(button);
+    main.append(actions);
   }
-  foot.append(time, actions);
-  main.append(body, foot);
+  const reply = document.createElement("form");
+  reply.className = "note-reply";
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "回复…";
+  input.setAttribute("aria-label", "回复批注");
+  const add = document.createElement("button");
+  add.type = "submit";
+  add.textContent = "添加";
+  reply.append(input, add);
+  main.append(reply);
   card.append(quote, main);
   return card;
 }
@@ -2044,6 +2087,7 @@ function linkedCards(ids, linked) {
 function closeNoteForm() {
   noteForm.style.display = "none";
   editingNote = null;
+  editingTurn = null;
   pendingSelection = null;
 }
 function renderView() {
@@ -2151,6 +2195,7 @@ selectionAction.addEventListener("click", () => {
     return;
   }
   editingNote = null;
+  editingTurn = null;
   noteInput.value = "";
   noteFormQuote.textContent = pendingSelection.text.slice(interval.start, interval.end);
   document.getElementById("note-form-title").textContent = "新建批注";
@@ -2163,10 +2208,11 @@ document.getElementById("note-confirm").addEventListener("click", () => {
   const value = noteInput.value.trim();
   if (!value) { setStatus("请输入批注内容。", true); noteInput.focus(); return; }
   if (editingNote) {
-    editingNote.body.value = value;
+    editingNote.body[editingTurn].value = value;
   } else if (pendingSelection) {
     const {interval, text} = pendingSelection;
-    annotations.push({id:`urn:uuid:${crypto.randomUUID()}`, type:"Annotation", created:new Date().toISOString(), body:{type:"TextualBody", value, format:"text/markdown"}, target:{selector:Anchors.makeSelector(text, interval.start, interval.end)}});
+    const created = new Date().toISOString();
+    annotations.push({id:`urn:uuid:${crypto.randomUUID()}`, type:"Annotation", created, body:[{type:"TextualBody", value, format:"text/markdown", created}], target:{selector:Anchors.makeSelector(text, interval.start, interval.end)}});
   }
   closeNoteForm();
   window.getSelection()?.removeAllRanges();
@@ -2180,14 +2226,19 @@ function handleNoteClick(event, inPopover) {
   const note = annotations.find(item => item.id === card.dataset.noteId);
   if (!note) return;
   const action = event.target.closest("button")?.dataset.action;
+  const turn = event.target.closest(".note-turn");
+  const index = turn ? Number(turn.dataset.turnIndex) : -1;
   if (action === "delete") {
-    annotations = annotations.filter(item => item.id !== note.id);
+    if (index < 0) return;
+    if (note.body.length === 1 && !window.confirm("删除整条批注？")) return;
+    annotations = deleteNoteTurn(annotations, note, index);
     syncMarkdownFromAnnotations(); renderView();
   } else if (action === "edit") {
+    if (index < 0) return;
     const rect = card.getBoundingClientRect();
     closeNotePopover();
-    editingNote = note; pendingSelection = null;
-    noteInput.value = note.body.value;
+    editingNote = note; editingTurn = index; pendingSelection = null;
+    noteInput.value = note.body[index].value;
     noteFormQuote.textContent = noteQuote(note);
     document.getElementById("note-form-title").textContent = "编辑批注";
     noteForm.style.display = "block"; placePopup(noteForm, rect); noteInput.focus();
@@ -2197,13 +2248,32 @@ function handleNoteClick(event, inPopover) {
     selectionAction.style.display = "none";
     setStatus("请重新划选正文文字，再点击“重新挂载”。");
     viewer.scrollIntoView({behavior:"smooth", block:"start"});
-  } else if (!inPopover) {
+  } else if (!inPopover && !event.target.closest(".note-reply")) {
     const mark = [...viewer.querySelectorAll(".annotation-mark")].find(item => item.dataset.noteIds.split(" ").includes(note.id));
     if (mark) { mark.scrollIntoView({behavior:"smooth", block:"center"}); mark.classList.remove("flash"); void mark.offsetWidth; mark.classList.add("flash"); }
   }
 }
 notesContent.addEventListener("click", event => handleNoteClick(event, false));
 notePopover.addEventListener("click", event => handleNoteClick(event, true));
+function handleNoteReply(event) {
+  const form = event.target.closest(".note-reply");
+  if (!form) return;
+  event.preventDefault();
+  const value = form.querySelector("input").value.trim();
+  if (!value) { form.querySelector("input").focus(); return; }
+  const note = annotations.find(item => item.id === form.closest(".note-card")?.dataset.noteId);
+  if (!note || invalidAnnotationBlock) return;
+  const inPopover = notePopover.contains(form);
+  appendNoteReply(note, value);
+  syncMarkdownFromAnnotations();
+  renderView();
+  if (inPopover) {
+    const mark = [...viewer.querySelectorAll(".annotation-mark")].find(item => item.dataset.noteIds.split(" ").includes(note.id));
+    if (mark) { showNotePopover(mark); notePopover.querySelector(".note-reply input")?.focus(); }
+  }
+}
+notesContent.addEventListener("submit", handleNoteReply);
+notePopover.addEventListener("submit", handleNoteReply);
 viewer.addEventListener("click", event => {
   const mark = event.target.closest(".annotation-mark");
   if (!mark || !viewer.contains(mark) || !window.getSelection()?.isCollapsed) return;
@@ -2297,7 +2367,7 @@ if (migratedAnnotations && !invalidAnnotationBlock) {
     const oldNotes = JSON.parse(legacyAnnotationBlock.textContent);
     if (!Array.isArray(oldNotes)) throw new Error("旧批注数据不是数组");
     if (!ANNOTATION_COMMENT.test(markdown)) {
-      annotations = oldNotes;
+      annotations = oldNotes.map(normalizeAnnotation);
       syncMarkdownFromAnnotations();
     }
     setStatus("批注已迁移到文档末尾注释块");

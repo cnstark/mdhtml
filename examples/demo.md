@@ -79,11 +79,20 @@ print(greet("mdhtml"))
     "id": "urn:uuid:790757b7-91a5-49aa-9715-aad13f32d7d1",
     "type": "Annotation",
     "created": "2026-10-27T14:56:36.587Z",
-    "body": {
-      "type": "TextualBody",
-      "value": "这是一条示例批注：支持 **Markdown** 语法，保存在文档末尾的注释块里。",
-      "format": "text/markdown"
-    },
+    "body": [
+      {
+        "type": "TextualBody",
+        "value": "这是一条示例批注：支持 **Markdown** 语法，保存在文档末尾的注释块里。",
+        "format": "text/markdown",
+        "created": "2026-10-27T14:56:36.587Z"
+      },
+      {
+        "type": "TextualBody",
+        "value": "补充：现在可以在同一条批注下继续回复，讨论会随文档一起保存。",
+        "format": "text/markdown",
+        "created": "2026-10-27T15:02:00.000Z"
+      }
+    ],
     "target": {
       "selector": [
         {

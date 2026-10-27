@@ -17,13 +17,21 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
   Current colors taken from GitHub's CSS
 */.hljs{color:#24292e;background:#fff}.hljs-doctag,.hljs-keyword,.hljs-meta .hljs-keyword,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language_{color:#d73a49}.hljs-title,.hljs-title.class_,.hljs-title.class_.inherited__,.hljs-title.function_{color:#6f42c1}.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable{color:#005cc5}.hljs-meta .hljs-string,.hljs-regexp,.hljs-string{color:#032f62}.hljs-built_in,.hljs-symbol{color:#e36209}.hljs-code,.hljs-comment,.hljs-formula{color:#6a737d}.hljs-name,.hljs-quote,.hljs-selector-pseudo,.hljs-selector-tag{color:#22863a}.hljs-subst{color:#24292e}.hljs-section{color:#005cc5;font-weight:700}.hljs-bullet{color:#735c0f}.hljs-emphasis{color:#24292e;font-style:italic}.hljs-strong{color:#24292e;font-weight:700}.hljs-addition{color:#22863a;background-color:#f0fff4}.hljs-deletion{color:#b31d28;background-color:#ffeef0}
 :root{color-scheme:light;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#263238;background:#f7f8fa}*{box-sizing:border-box}body{margin:0}button{font:inherit;cursor:pointer}header{min-height:56px;display:flex;align-items:center;gap:12px;padding:0 20px;background:#fff;border-bottom:1px solid #e3e7eb;position:sticky;top:0;z-index:10}header strong{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}header button,.toolbar button{border:1px solid #d3dbe2;border-radius:7px;background:#fff;padding:6px 11px;color:#344551}header button:hover,.toolbar button:hover{background:#edf4f7}header button:disabled{opacity:.6;cursor:default}#save-state{display:flex;align-items:center;gap:8px;font-size:12px;color:#6b7c86;min-width:0}#connection-status{display:inline-block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dirty-indicator{display:none;white-space:nowrap;color:#aa6220}#dirty-indicator::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#d88927;margin-right:5px;vertical-align:1px}body.dirty #dirty-indicator{display:inline}#status{font-size:12px;color:#38677e;white-space:nowrap}#status.error{color:#b43232}.layout{display:flex;min-height:calc(100vh - 56px)}#outline{width:250px;flex:none;border-right:1px solid #e3e7eb;background:#fff;padding:20px 12px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto}#outline h2{margin:0 8px 12px;font-size:12px;color:#76838a;letter-spacing:.08em}#outline a{display:block;text-decoration:none;color:#586871;padding:7px 10px;border-radius:6px;font-size:13px;line-height:1.4}#outline a[data-level="2"]{padding-left:22px}#outline a[data-level="3"]{padding-left:34px}#outline a:hover,#outline a.active{color:#175e87;background:#eaf4fa}#outline.empty{display:none}body.outline-closed #outline{display:none}#main{min-width:0;flex:1}#viewer{max-width:880px;margin:0 auto;padding:32px 44px 100px}.markdown-body{line-height:1.75;overflow-wrap:anywhere;font-size:16px}.markdown-body img{max-width:100%;height:auto}.markdown-body pre{overflow:auto;border-radius:8px}.markdown-body table{display:block;overflow-x:auto}.markdown-body blockquote{color:#63717a}.markdown-body h1,.markdown-body h2,.markdown-body h3{scroll-margin-top:76px}.markdown-body .mxgraph{min-height:100px;overflow:auto}.drawio-missing{padding:16px;border:1px solid #e2bc78;background:#fff7e8;border-radius:7px;color:#76531e}#editor{display:none;height:calc(100vh - 56px)}body.editing #editor{display:grid;grid-template-columns:minmax(280px,1fr) minmax(280px,1fr)}body.editing #viewer{display:none}#source-editor{width:100%;height:100%;resize:none;border:0;border-right:1px solid #dfe5e9;outline:0;background:#fdfefe;padding:24px;font:14px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}#preview{overflow:auto;padding:24px 36px;background:#fff}.toolbar{display:flex;gap:8px}@media(max-width:800px){#outline{width:190px}#viewer{padding:24px}body.editing #editor{grid-template-columns:1fr;grid-template-rows:50% 50%}#source-editor{border-right:0;border-bottom:1px solid #dfe5e9}}@media(max-width:600px){#outline{display:none}header{padding:8px 10px;flex-wrap:wrap}header strong{flex-basis:calc(100% - 48px)}#save-state{order:3;flex:1}#status{order:4}.toolbar{order:2}}
-.annotation-mark{background:#ffe59a;border-radius:2px;cursor:pointer;scroll-margin-top:80px}.annotation-mark:hover{background:#ffd16a}.annotation-mark.flash{animation:annotation-flash 1.2s ease 2}@keyframes annotation-flash{50%{background:#f59e0b}}#notes-panel{width:300px;flex:none;background:#fff;border-left:1px solid #e3e7eb;padding:18px 14px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto}#notes-panel h2{font-size:15px;margin:0 0 12px}#notes-panel h3{font-size:13px;color:#925426;margin:20px 0 8px}.note-card{border:1px solid #e4e7e9;border-radius:8px;padding:10px;margin-bottom:10px;cursor:pointer}.note-card:hover{border-color:#e9b94a}.note-quote{font-size:12px;color:#66757d;overflow-wrap:anywhere}.note-body{font-size:14px;overflow-wrap:anywhere}.note-body p{margin:6px 0}.note-time{font-size:11px;color:#7b8790}.note-actions{display:flex;gap:6px;margin-top:8px}.note-actions button,#note-form button,#selection-action{border:1px solid #cbd5dc;border-radius:5px;background:white;padding:4px 8px;font-size:12px}#selection-action{position:fixed;z-index:30;display:none;box-shadow:0 2px 10px #0002}#note-form{position:fixed;z-index:31;display:none;width:min(330px,calc(100vw - 24px));padding:12px;background:white;border:1px solid #d8e0e5;border-radius:8px;box-shadow:0 4px 22px #0002}#note-form textarea{display:block;width:100%;min-height:90px;resize:vertical;margin:8px 0;font:inherit}#note-form-actions{display:flex;justify-content:flex-end;gap:8px}.note-empty{font-size:13px;color:#829099}body.editing #notes-panel{display:none}@media(max-width:1050px){.layout{flex-wrap:wrap}#notes-panel{position:static;width:100%;height:auto;border-left:0;border-top:1px solid #e3e7eb}body.editing #main{width:100%}}@media(max-width:600px){#notes-panel{padding:16px}#notes-panel.collapsed #notes-content{display:none}}
+/* 批注卡片与正文气泡共用引用、内容和操作样式。 */
+.annotation-mark{background:#ffe59a;border-radius:2px;cursor:pointer;scroll-margin-top:80px}.annotation-mark:hover,.annotation-mark:focus-visible,.annotation-mark.note-linked{background:#ffd16a}.annotation-mark:focus-visible{outline:2px solid #9d6d20;outline-offset:2px}.annotation-mark.flash{animation:annotation-flash 1.2s ease 2}@keyframes annotation-flash{50%{background:#f59e0b}}
+#notes-panel{width:300px;flex:none;background:#fff;border-left:1px solid #e3e7eb;padding:18px 14px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto}#notes-panel h2{font-size:15px;margin:0 0 12px}#notes-panel h3{font-size:13px;color:#925426;margin:20px 0 8px}
+.note-card{border:1px solid #e9edf0;border-radius:10px;margin-bottom:12px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s}.note-card:hover,.note-card.note-linked{border-color:#e9b94a;box-shadow:0 2px 10px rgba(0,0,0,.05)}.note-quote{font-size:12px;color:#8a6d1f;background:#fff8e6;border-left:3px solid #f0c64f;padding:7px 10px;font-style:italic;overflow-wrap:anywhere}.note-card.orphan .note-quote{background:#fdeeee;border-left-color:#d98383;color:#a14545;font-style:normal}.note-orphan-badge{font-size:10px;background:#d98383;color:#fff;border-radius:3px;padding:1px 5px;margin-left:6px;font-style:normal;white-space:nowrap}.note-main{padding:9px 10px}.note-body{font-size:14px;line-height:1.6;overflow-wrap:anywhere}.note-body p{margin:0 0 6px}.note-body p:last-child{margin-bottom:0}.note-foot{display:flex;align-items:center;justify-content:space-between;gap:4px;margin-top:8px}.note-time{font-size:11px;color:#8b98a0;white-space:nowrap}.note-actions{display:flex;gap:2px;opacity:0;transition:opacity .15s}.note-card:hover .note-actions,.note-card:focus-within .note-actions,.note-popover .note-actions{opacity:1}.note-actions button{border:0;background:none;color:#6b7c86;font-size:12px;padding:2px 6px;border-radius:4px;white-space:nowrap}.note-actions button:hover{background:#f0f3f5;color:#263238}
+.note-popover,#note-form{position:fixed;z-index:31;width:min(230px,90vw);max-height:min(70vh,520px);overflow:auto;background:#fff;border:1px solid #dfe5e9;border-radius:10px;box-shadow:0 6px 24px rgba(20,40,60,.14)}.note-popover{display:none}.note-popover .note-card{border:0;border-radius:0;margin:0;box-shadow:none;cursor:default}.note-popover .note-card+.note-card{border-top:1px solid #e9edf0}.note-popover .note-card:hover{box-shadow:none}.note-popover .note-body{font-size:13px}#selection-action{position:fixed;z-index:30;display:none;box-shadow:0 2px 10px #0002}#selection-action,#note-form button{border:1px solid #cbd5dc;border-radius:5px;background:white;padding:4px 8px;font-size:12px}#note-form{display:none}#note-form-title{display:block;padding:9px 10px 0;font-size:13px}#note-form textarea{display:block;width:calc(100% - 20px);min-height:90px;resize:vertical;margin:8px 10px;font:inherit}#note-form-actions{display:flex;justify-content:flex-end;gap:8px;padding:0 10px 10px}.note-empty{font-size:13px;color:#829099}body.editing #notes-panel{display:none}@media(max-width:1050px){.layout{flex-wrap:wrap}#notes-panel{position:static;width:100%;height:auto;border-left:0;border-top:1px solid #e3e7eb}body.editing #main{width:100%}}@media(max-width:600px){#notes-panel{padding:16px}#notes-panel.collapsed #notes-content{display:none}}
+@media(prefers-reduced-motion:reduce){.annotation-mark.flash{animation:none}.note-card,.note-actions{transition:none}}
+
 #preview pre code{display:block;padding:1em;background:#f4f6f8;color:#344551;white-space:pre}
 #document-path{display:flex;min-width:0;max-width:min(38vw,440px);overflow:hidden;white-space:nowrap}#path-prefix{min-width:0;overflow:hidden;text-overflow:ellipsis}#path-name{flex:0 1 auto;min-width:0;max-width:180px;overflow:hidden;text-overflow:ellipsis}#connection-status{flex:none}
 @media(max-width:600px){#document-path{max-width:calc(100vw - 170px)}}
 #search-box{display:none;align-items:center;gap:6px;min-width:0}#search-box.open{display:flex}#search-input{width:150px;max-width:22vw;border:1px solid #d3dbe2;border-radius:7px;padding:6px 8px;font:inherit;color:inherit;background:#fff;outline:0}#search-input:focus{border-color:#548ca9;box-shadow:0 0 0 2px #548ca933}#search-count{font-size:12px;color:#6b7c86;white-space:nowrap}#search-close{padding:6px 8px}.search-flash{background:#f8cf70;border-radius:2px;scroll-margin-top:80px;animation:search-flash 1.6s ease forwards}@keyframes search-flash{70%{background:#f8cf70}100%{background:transparent}}@media(max-width:800px){#search-box.open{order:5;width:100%;justify-content:flex-end}#search-input{max-width:none;flex:1}}
 /* file:// 的 localStorage 可能由多个本地文件共享，所以使用 mdhtml 前缀。 */
 :root[data-theme="dark"]{color-scheme:dark;color:#d6dee4;background:#151b20}:root[data-theme="dark"] header,:root[data-theme="dark"] #outline,:root[data-theme="dark"] #notes-panel,:root[data-theme="dark"] #preview{background:#1c252c;border-color:#34414a}:root[data-theme="dark"] header button,:root[data-theme="dark"] .toolbar button,:root[data-theme="dark"] #note-form button,:root[data-theme="dark"] .note-actions button,:root[data-theme="dark"] #selection-action{background:#26333c;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] header button:hover,:root[data-theme="dark"] .toolbar button:hover{background:#34444e}:root[data-theme="dark"] #search-input,:root[data-theme="dark"] #source-editor,:root[data-theme="dark"] #note-form textarea{background:#182127;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] #source-editor{border-color:#34414a}:root[data-theme="dark"] #save-state,:root[data-theme="dark"] #search-count,:root[data-theme="dark"] #outline h2,:root[data-theme="dark"] .note-quote,:root[data-theme="dark"] .note-time,:root[data-theme="dark"] .note-empty{color:#9aaab4}:root[data-theme="dark"] #status{color:#89b9d1}:root[data-theme="dark"] #status.error{color:#f09b9b}:root[data-theme="dark"] #outline a{color:#b4c4ce}:root[data-theme="dark"] #outline a:hover,:root[data-theme="dark"] #outline a.active{color:#a9daf2;background:#263d4b}:root[data-theme="dark"] .markdown-body{color:#d6dee4}:root[data-theme="dark"] .markdown-body a{color:#86c5e8}:root[data-theme="dark"] .markdown-body blockquote{color:#a9b8c1;border-color:#52616b}:root[data-theme="dark"] .markdown-body pre,:root[data-theme="dark"] .markdown-body code{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .markdown-body table th,:root[data-theme="dark"] .markdown-body table td{border-color:#455560}:root[data-theme="dark"] .markdown-body table tr{background:#1c252c;border-color:#455560}:root[data-theme="dark"] .markdown-body table tr:nth-child(2n){background:#222e36}:root[data-theme="dark"] .markdown-body hr{background:#455560;border-color:#455560}:root[data-theme="dark"] .annotation-mark{background:#76602b;color:#fff0c9}:root[data-theme="dark"] .annotation-mark:hover{background:#947638}:root[data-theme="dark"] .note-card,:root[data-theme="dark"] #note-form{background:#202a31;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] .note-card:hover{border-color:#b18c49}:root[data-theme="dark"] #notes-panel h3{color:#d8aa6b}:root[data-theme="dark"] .drawio-missing{background:#453b29;border-color:#846a3d;color:#f1d6a2}:root[data-theme="dark"] .markdown-body .mxgraph{background:#fff;border-radius:8px;padding:8px}:root[data-theme="dark"] #preview pre code{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .search-flash{background:#97753a;color:#fff5d9}
+:root[data-theme="dark"] .annotation-mark.note-linked{background:#947638}:root[data-theme="dark"] .note-card,:root[data-theme="dark"] .note-popover,:root[data-theme="dark"] #note-form{background:#202a31;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] .note-card:hover,:root[data-theme="dark"] .note-card.note-linked{border-color:#b18c49}:root[data-theme="dark"] .note-quote{background:#3a3324;border-color:#c9a44e;color:#ead39b}:root[data-theme="dark"] .note-card.orphan .note-quote{background:#402b30;border-color:#c77b7b;color:#edb1b1}:root[data-theme="dark"] .note-orphan-badge{background:#a65d63}:root[data-theme="dark"] .note-actions button{background:transparent;border:0;color:#b4c4ce}:root[data-theme="dark"] .note-actions button:hover{background:#34444e;color:#edf4f7}:root[data-theme="dark"] .note-popover .note-card+.note-card{border-top-color:#455560}
+
 :root[data-theme="dark"] .hljs{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .hljs-keyword,:root[data-theme="dark"] .hljs-doctag,:root[data-theme="dark"] .hljs-type,:root[data-theme="dark"] .hljs-template-tag,:root[data-theme="dark"] .hljs-variable.language_{color:#ef9ca8}:root[data-theme="dark"] .hljs-title,:root[data-theme="dark"] .hljs-title.class_,:root[data-theme="dark"] .hljs-title.function_{color:#c7a7ee}:root[data-theme="dark"] .hljs-attr,:root[data-theme="dark"] .hljs-attribute,:root[data-theme="dark"] .hljs-literal,:root[data-theme="dark"] .hljs-meta,:root[data-theme="dark"] .hljs-number,:root[data-theme="dark"] .hljs-selector-attr,:root[data-theme="dark"] .hljs-selector-class,:root[data-theme="dark"] .hljs-selector-id,:root[data-theme="dark"] .hljs-variable,:root[data-theme="dark"] .hljs-section{color:#8fbcf2}:root[data-theme="dark"] .hljs-string,:root[data-theme="dark"] .hljs-regexp,:root[data-theme="dark"] .hljs-meta .hljs-string{color:#b2d79a}:root[data-theme="dark"] .hljs-built_in,:root[data-theme="dark"] .hljs-symbol,:root[data-theme="dark"] .hljs-bullet{color:#e6b782}:root[data-theme="dark"] .hljs-comment,:root[data-theme="dark"] .hljs-code,:root[data-theme="dark"] .hljs-formula{color:#94a3ad}:root[data-theme="dark"] .hljs-name,:root[data-theme="dark"] .hljs-quote,:root[data-theme="dark"] .hljs-selector-tag{color:#9bd0b1}:root[data-theme="dark"] .hljs-subst,:root[data-theme="dark"] .hljs-strong,:root[data-theme="dark"] .hljs-emphasis{color:#d6dee4}:root[data-theme="dark"] .hljs-addition{color:#9bd0b1;background:#24392f}:root[data-theme="dark"] .hljs-deletion{color:#ef9ca8;background:#422e35}
 </style>
 </head>
@@ -32,7 +40,7 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
 <script id="annotations" type="application/json">@@ANNOTATIONS@@</script>
 <header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="document-path"><span id="path-prefix"></span><span id="path-name"></span></span><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div id="search-box" role="search"><input id="search-input" type="search" aria-label="搜索 Markdown 源码" placeholder="搜索全文"><span id="search-count" role="status" aria-live="polite"></span><button id="search-close" type="button" aria-label="关闭搜索">×</button></div><div class="toolbar"><button id="search-toggle" type="button" aria-label="搜索全文">搜索</button><button id="theme-toggle" type="button" aria-label="切换主题">主题</button><button id="edit-toggle" type="button">编辑</button><button id="authorize-save" type="button" hidden>授权原地保存</button><button id="save" type="button">下载保存</button></div></header>
 <div class="layout"><nav id="outline" aria-label="文档大纲"><h2>大纲</h2><div id="outline-links"></div></nav><main id="main"><article id="viewer" class="markdown-body"></article><div id="editor"><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码"></textarea><article id="preview" class="markdown-body"></article></div></main><aside id="notes-panel" aria-label="批注"><h2><button id="notes-toggle" type="button" aria-expanded="true">批注</button> <span id="notes-count"></span></h2><div id="notes-content"></div></aside></div>
-<button id="selection-action" type="button">批注</button><div id="note-form" role="dialog" aria-label="编辑批注"><strong id="note-form-title">新建批注</strong><textarea id="note-input" aria-label="批注内容，支持 Markdown"></textarea><div id="note-form-actions"><button id="note-cancel" type="button">取消</button><button id="note-confirm" type="button">确定</button></div></div>
+<button id="selection-action" type="button">批注</button><div id="note-popover" class="note-popover" role="dialog" aria-label="正文批注"></div><div id="note-form" role="dialog" aria-label="编辑批注"><div id="note-form-quote" class="note-quote"></div><strong id="note-form-title">新建批注</strong><textarea id="note-input" aria-label="批注内容，支持 Markdown"></textarea><div id="note-form-actions"><button id="note-cancel" type="button">取消</button><button id="note-confirm" type="button">确定</button></div></div>
 <script id="marked-library">/**
  * marked v12.0.2 - a markdown parser
  * Copyright (c) 2011-2024, Christopher Jeffrey. (MIT Licensed)
@@ -1347,6 +1355,8 @@ documentPath.title = displayPath;
 const notesContent = document.getElementById("notes-content");
 const selectionAction = document.getElementById("selection-action");
 const noteForm = document.getElementById("note-form");
+const notePopover = document.getElementById("note-popover");
+const noteFormQuote = document.getElementById("note-form-quote");
 const noteInput = document.getElementById("note-input");
 let pendingSelection = null;
 let editingNote = null;
@@ -1748,6 +1758,9 @@ function highlightInterval(parts, interval, ids) {
     range.setEnd(part.node, finish - part.start);
     const mark = document.createElement("mark");
     mark.className = "annotation-mark";
+    mark.tabIndex = 0;
+    mark.setAttribute("role", "button");
+    mark.setAttribute("aria-label", `查看批注：${mark.textContent || range.toString()}`);
     mark.dataset.noteIds = ids.join(" ");
     mark.title = ids.map(id => annotations.find(note => note.id === id)?.body?.value || "").join("\n—\n").slice(0, 240);
     range.surroundContents(mark);
@@ -1778,17 +1791,28 @@ function reanchor() {
 }
 function noteCard(note, orphaned) {
   const card = document.createElement("div");
-  card.className = "note-card";
+  card.className = `note-card${orphaned ? " orphan" : ""}`;
   card.dataset.noteId = note.id;
   const quote = document.createElement("div");
   quote.className = "note-quote";
-  quote.textContent = `“${(note.target?.selector?.find(s => s.type === "TextQuoteSelector")?.exact || "").slice(0, 100)}”`;
+  quote.textContent = noteQuote(note).slice(0, 100);
+  if (orphaned) {
+    const badge = document.createElement("span");
+    badge.className = "note-orphan-badge";
+    badge.textContent = "失锚";
+    quote.append(badge);
+  }
+  const main = document.createElement("div");
+  main.className = "note-main";
   const body = document.createElement("div");
   body.className = "note-body";
   body.innerHTML = DOMPurify.sanitize(marked.parse(note.body?.value || ""));
   const time = document.createElement("div");
   time.className = "note-time";
-  time.textContent = new Date(note.created).toLocaleString("zh-CN");
+  time.textContent = relativeTime(note.created);
+  time.title = new Date(note.created).toLocaleString("zh-CN");
+  const foot = document.createElement("div");
+  foot.className = "note-foot";
   const actions = document.createElement("div");
   actions.className = "note-actions";
   for (const [action, label] of orphaned ? [["reattach", "重新挂载"], ["delete", "删除"]] : [["edit", "编辑"], ["delete", "删除"]]) {
@@ -1798,8 +1822,26 @@ function noteCard(note, orphaned) {
     button.textContent = label;
     actions.append(button);
   }
-  card.append(quote, body, time, actions);
+  foot.append(time, actions);
+  main.append(body, foot);
+  card.append(quote, main);
   return card;
+}
+function noteQuote(note) {
+  return note.target?.selector?.find(s => s.type === "TextQuoteSelector")?.exact || "";
+}
+function relativeTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const now = new Date();
+  const minutes = Math.max(0, Math.floor((now - date) / 60000));
+  if (minutes < 1) return "刚刚";
+  if (minutes < 60) return `${minutes} 分钟前`;
+  const days = Math.floor((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(date.getFullYear(), date.getMonth(), date.getDate())) / 86400000);
+  if (days <= 0) return `${Math.floor(minutes / 60)} 小时前`;
+  if (days === 1) return "昨天";
+  if (days <= 7) return `${Math.max(1, days)} 天前`;
+  return date.toLocaleDateString("zh-CN");
 }
 function renderNotes() {
   notesContent.replaceChildren();
@@ -1822,8 +1864,35 @@ function renderNotes() {
   }
 }
 function placePopup(element, rect) {
-  element.style.left = `${Math.max(8, Math.min(window.innerWidth - 340, rect.left))}px`;
-  element.style.top = `${Math.max(8, Math.min(window.innerHeight - 150, rect.bottom + 8))}px`;
+  const width = Math.min(230, window.innerWidth * .9);
+  element.style.left = `${Math.max(8, Math.min(window.innerWidth - width - 8, rect.left))}px`;
+  const height = element.offsetHeight || 150;
+  element.style.top = `${Math.max(8, Math.min(window.innerHeight - height - 8, rect.bottom + 8))}px`;
+}
+function closeNotePopover() {
+  notePopover.style.display = "none";
+  notePopover.replaceChildren();
+}
+function showNotePopover(mark) {
+  closeNotePopover();
+  const ids = mark.dataset.noteIds.split(" ");
+  for (const id of ids) {
+    const note = annotations.find(item => item.id === id);
+    if (note) notePopover.append(noteCard(note, false));
+  }
+  if (!notePopover.childElementCount) return;
+  notePopover.style.display = "block";
+  placePopup(notePopover, mark.getBoundingClientRect());
+}
+function linkedMarks(ids, linked) {
+  for (const mark of viewer.querySelectorAll(".annotation-mark")) {
+    if (mark.dataset.noteIds.split(" ").some(id => ids.includes(id))) mark.classList.toggle("note-linked", linked);
+  }
+}
+function linkedCards(ids, linked) {
+  for (const card of notesContent.querySelectorAll(".note-card")) {
+    if (ids.includes(card.dataset.noteId)) card.classList.toggle("note-linked", linked);
+  }
 }
 function closeNoteForm() {
   noteForm.style.display = "none";
@@ -1831,6 +1900,7 @@ function closeNoteForm() {
   pendingSelection = null;
 }
 function renderView() {
+  closeNotePopover();
   clearSearchFlash();
   renderMarkdown(markdown, viewer);
   document.getElementById("doc-title").textContent = safeTitle(markdown);
@@ -1841,6 +1911,8 @@ function renderView() {
   if (searchBox.classList.contains("open")) searchSource();
 }
 function setEditing(editing) {
+  closeNotePopover();
+  closeNoteForm();
   clearTimeout(editTimer);
   document.body.classList.toggle("editing", editing);
   document.getElementById("edit-toggle").textContent = editing ? "查看" : "编辑";
@@ -1903,9 +1975,10 @@ selectionAction.addEventListener("click", () => {
   }
   editingNote = null;
   noteInput.value = "";
+  noteFormQuote.textContent = pendingSelection.text.slice(interval.start, interval.end);
   document.getElementById("note-form-title").textContent = "新建批注";
-  placePopup(noteForm, actionRect);
   noteForm.style.display = "block";
+  placePopup(noteForm, actionRect);
   noteInput.focus();
 });
 document.getElementById("note-cancel").addEventListener("click", closeNoteForm);
@@ -1923,7 +1996,7 @@ document.getElementById("note-confirm").addEventListener("click", () => {
   renderView();
   updateSaveState();
 });
-notesContent.addEventListener("click", event => {
+function handleNoteClick(event, inPopover) {
   const card = event.target.closest(".note-card");
   if (!card) return;
   const note = annotations.find(item => item.id === card.dataset.noteId);
@@ -1933,21 +2006,62 @@ notesContent.addEventListener("click", event => {
     annotations = annotations.filter(item => item.id !== note.id);
     renderView(); updateSaveState();
   } else if (action === "edit") {
+    const rect = card.getBoundingClientRect();
+    closeNotePopover();
     editingNote = note; pendingSelection = null;
     noteInput.value = note.body.value;
+    noteFormQuote.textContent = noteQuote(note);
     document.getElementById("note-form-title").textContent = "编辑批注";
-    placePopup(noteForm, card.getBoundingClientRect());
-    noteForm.style.display = "block"; noteInput.focus();
+    noteForm.style.display = "block"; placePopup(noteForm, rect); noteInput.focus();
   } else if (action === "reattach") {
+    closeNotePopover();
     reattachingNote = note.id;
     selectionAction.style.display = "none";
     setStatus("请重新划选正文文字，再点击“重新挂载”。");
     viewer.scrollIntoView({behavior:"smooth", block:"start"});
-  } else {
+  } else if (!inPopover) {
     const mark = [...viewer.querySelectorAll(".annotation-mark")].find(item => item.dataset.noteIds.split(" ").includes(note.id));
     if (mark) { mark.scrollIntoView({behavior:"smooth", block:"center"}); mark.classList.remove("flash"); void mark.offsetWidth; mark.classList.add("flash"); }
   }
+}
+notesContent.addEventListener("click", event => handleNoteClick(event, false));
+notePopover.addEventListener("click", event => handleNoteClick(event, true));
+viewer.addEventListener("click", event => {
+  const mark = event.target.closest(".annotation-mark");
+  if (!mark || !viewer.contains(mark) || !window.getSelection()?.isCollapsed) return;
+  toggleNotePopover(mark);
 });
+viewer.addEventListener("keydown", event => {
+  const mark = event.target.closest(".annotation-mark");
+  if (!mark || (event.key !== "Enter" && event.key !== " ")) return;
+  event.preventDefault();
+  toggleNotePopover(mark);
+});
+function toggleNotePopover(mark) {
+  if (notePopover.style.display === "block" && notePopover.dataset.mark === mark.dataset.noteIds) closeNotePopover();
+  else { showNotePopover(mark); notePopover.dataset.mark = mark.dataset.noteIds; }
+}
+notesContent.addEventListener("pointerover", event => {
+  const card = event.target.closest(".note-card");
+  if (card && !card.contains(event.relatedTarget)) linkedMarks([card.dataset.noteId], true);
+});
+notesContent.addEventListener("pointerout", event => {
+  const card = event.target.closest(".note-card");
+  if (card && !card.contains(event.relatedTarget)) linkedMarks([card.dataset.noteId], false);
+});
+viewer.addEventListener("pointerover", event => {
+  const mark = event.target.closest(".annotation-mark");
+  if (mark && !mark.contains(event.relatedTarget)) linkedCards(mark.dataset.noteIds.split(" "), true);
+});
+viewer.addEventListener("pointerout", event => {
+  const mark = event.target.closest(".annotation-mark");
+  if (mark && !mark.contains(event.relatedTarget)) linkedCards(mark.dataset.noteIds.split(" "), false);
+});
+document.addEventListener("pointerdown", event => {
+  if (!notePopover.contains(event.target) && !event.target.closest(".annotation-mark")) closeNotePopover();
+});
+// 滚动时关闭气泡，避免固定定位的气泡脱离原文。
+window.addEventListener("scroll", closeNotePopover, {passive:true, capture:true});
 sourceEditor.addEventListener("input", () => {
   updateSaveState();
   if (searchBox.classList.contains("open")) searchSource();
@@ -1959,6 +2073,8 @@ sourceEditor.addEventListener("input", () => {
   editTimer = setTimeout(() => renderMarkdown(sourceEditor.value, preview), delay);
 });
 document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && notePopover.style.display === "block") { event.preventDefault(); closeNotePopover(); return; }
+  if (event.key === "Escape" && noteForm.style.display === "block") { event.preventDefault(); closeNoteForm(); return; }
   if (event.key === "Escape" && searchBox.classList.contains("open")) { event.preventDefault(); closeSearch(); return; }
   if (!(event.metaKey || event.ctrlKey)) return;
   const key = event.key.toLowerCase();

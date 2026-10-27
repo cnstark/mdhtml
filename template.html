@@ -2191,12 +2191,15 @@ sourceEditor.addEventListener("keydown", event => {
 sourceEditor.addEventListener("input", () => {
   updateSaveState();
   if (searchBox.classList.contains("open")) searchSource();
+  // 高亮层是用户实际看到的文字（textarea 透明），必须同步更新，否则光标先动字符后到；
+  // 实测 30 万字 tokenize 约 10ms，同步开销可接受。预览渲染开销大，仍走防抖。
+  updateHighlight();
   clearTimeout(editTimer);
   const length = sourceEditor.value.length;
   const delay = length > EDIT_PREVIEW_DEBOUNCE.longAbove ? EDIT_PREVIEW_DEBOUNCE.longMs
     : length >= EDIT_PREVIEW_DEBOUNCE.mediumFrom ? EDIT_PREVIEW_DEBOUNCE.mediumMs
     : EDIT_PREVIEW_DEBOUNCE.shortMs;
-  editTimer = setTimeout(() => { updateHighlight(); renderMarkdown(sourceEditor.value, preview); }, delay);
+  editTimer = setTimeout(() => { renderMarkdown(sourceEditor.value, preview); }, delay);
 });
 document.addEventListener("keydown", event => {
   if (event.key === "Escape" && notePopover.style.display === "block") { event.preventDefault(); closeNotePopover(); return; }

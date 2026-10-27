@@ -1,0 +1,18 @@
+{
+  "name": "mdhtml",
+  "displayName": "mdhtml",
+  "description": "在 VSCode 中以 mdhtml 查看、编辑 Markdown 和批注",
+  "version": "1.0.0",
+  "publisher": "mdhtml-local",
+  "engines": {"vscode": "^1.85.0"},
+  "activationEvents": ["onCustomEditor:mdhtml.editor"],
+  "main": "./extension.js",
+  "contributes": {
+    "customEditors": [{
+      "viewType": "mdhtml.editor",
+      "displayName": "mdhtml",
+      "selector": [{"filenamePattern": "*.md"}],
+      "priority": "default"
+    }]
+  }
+}

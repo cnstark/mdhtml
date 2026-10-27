@@ -1449,6 +1449,9 @@ let restoringHandle = true;
 let savedMarkdown = originalMarkdown;
 let saving = false;
 let feedbackTimer;
+const vscodeHost = typeof window.acquireVsCodeApi === "function" ? window.acquireVsCodeApi() : null;
+let hostSaveId = 0;
+const pendingHostSaves = new Map();
 const canSaveInPlace = typeof window.showOpenFilePicker === "function";
 const currentPath = decodeURIComponent(location.pathname);
 const expectedFileName = currentPath.split("/").pop() || "";
@@ -1587,12 +1590,12 @@ function currentMarkdown() {
 function updateSaveState() {
   document.body.classList.toggle("dirty", currentMarkdown() !== savedMarkdown);
   const connection = document.getElementById("connection-status");
-  connection.textContent = canSaveInPlace
+  connection.textContent = vscodeHost ? "VSCode 模式" : canSaveInPlace
     ? (fileHandle ? `已连接：${fileHandle.name}` : rememberedHandle ? "已记住此文件，点击重新连接" : restoringHandle ? "正在检查保存授权" : "未授权")
     : "浏览器不支持原地保存；下载后请手动覆盖原文件";
   connection.title = connection.textContent;
-  saveButton.disabled = saving || (canSaveInPlace && restoringHandle);
-  saveButton.textContent = canSaveInPlace ? "保存" : "下载保存";
+  saveButton.disabled = saving || (!vscodeHost && canSaveInPlace && restoringHandle);
+  saveButton.textContent = vscodeHost || canSaveInPlace ? "保存" : "下载保存";
 }
 function setStatus(message, error = false) {
   const status = document.getElementById("status");
@@ -1632,6 +1635,7 @@ async function validHandle(handle) {
   catch (_) { return false; }
 }
 async function restoreHandle() {
+  if (vscodeHost) { restoringHandle = false; updateSaveState(); return; }
   if (canSaveInPlace) {
     try {
       const handle = await cachedHandle("get");
@@ -1681,7 +1685,14 @@ async function authorizeSave() {
   setStatus("原地保存已授权");
   return fileHandle;
 }
-async function persistHtml(html) {
+async function persistHtml(html, saveToDisk = false) {
+  if (vscodeHost) {
+    const id = ++hostSaveId;
+    return new Promise((resolve, reject) => {
+      pendingHostSaves.set(id, {resolve, reject});
+      vscodeHost.postMessage({type:"save", markdown:currentMarkdown(), id, saveToDisk});
+    });
+  }
   if (!canSaveInPlace) { downloadHtml(html); return false; }
   const handle = await authorizeSave();
   const writable = await handle.createWritable();
@@ -1694,7 +1705,7 @@ async function persistHtml(html) {
   }
   return true;
 }
-async function saveDocument() {
+async function saveDocument(saveToDisk = false) {
   if (saving || restoringHandle) return;
   saving = true;
   saveButton.disabled = true;
@@ -1708,7 +1719,7 @@ async function saveDocument() {
       sourceEditor.value = value;
       if (document.body.classList.contains("editing")) updateHighlight();
     }
-    const savedInPlace = await persistHtml(serialize(value));
+    const savedInPlace = await persistHtml(vscodeHost ? "" : serialize(value), saveToDisk);
     markdown = value;
     if (savedInPlace) {
       savedMarkdown = value;
@@ -1718,7 +1729,7 @@ async function saveDocument() {
     }
     updateSaveState();
     if (containsDrawio(value) && !viewerScript) {
-      alert("包含 drawio 需重新 build 注入 viewer。请用 mdhtml extract 提取 Markdown，再运行 mdhtml build。");
+      alert(vscodeHost ? "保存后重新打开以启用 drawio 渲染" : "包含 drawio 需重新 build 注入 viewer。请用 mdhtml extract 提取 Markdown，再运行 mdhtml build。");
     }
   } catch (error) {
     if (error.name !== "AbortError") {
@@ -2126,7 +2137,31 @@ document.getElementById("export-md").addEventListener("click", () => {
   URL.revokeObjectURL(a.href);
   setStatus("已导出 Markdown");
 });
-saveButton.addEventListener("click", saveDocument);
+saveButton.addEventListener("click", () => saveDocument());
+if (vscodeHost) window.addEventListener("message", event => {
+  const message = event.data;
+  if (!message || typeof message !== "object") return;
+  if (message.type === "saveResult") {
+    const pending = pendingHostSaves.get(message.id);
+    if (!pending) return;
+    pendingHostSaves.delete(message.id);
+    if (message.ok) pending.resolve(true);
+    else pending.reject(new Error(message.error || "无法更新 Markdown 文档"));
+  } else if (message.type === "setContent" && typeof message.markdown === "string") {
+    if (currentMarkdown() !== savedMarkdown) { setStatus("文件已被外部修改", true); return; }
+    markdown = message.markdown;
+    savedMarkdown = markdown;
+    sourceEditor.value = markdown;
+    syncAnnotationsFromMarkdown(markdown);
+    if (document.body.classList.contains("editing")) {
+      clearTimeout(editTimer);
+      updateHighlight();
+      renderMarkdown(markdown, preview);
+    }
+    renderView();
+    updateSaveState();
+  }
+});
 const outlineToggle = document.getElementById("outline-toggle");
 const outline = document.getElementById("outline");
 const mobileOutline = window.matchMedia("(max-width: 800px)");
@@ -2353,7 +2388,7 @@ document.addEventListener("keydown", event => {
   const key = event.key.toLowerCase();
   if (key === "f") { event.preventDefault(); openSearch(); return; }
   if (key === "e") { event.preventDefault(); setEditing(!document.body.classList.contains("editing")); }
-  if (key === "s") { event.preventDefault(); saveDocument(); }
+  if (key === "s") { event.preventDefault(); saveDocument(!!vscodeHost); }
 });
 window.addEventListener("scroll", updateOutline, {passive:true});
 window.addEventListener("beforeunload", event => {

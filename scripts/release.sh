@@ -41,6 +41,9 @@ for example in examples/*.md; do
 done
 
 # 保持 CLI、模板和 vendor 同级；示例只打包源文件和所需资源。
+# vscode/ 里的模板与 viewer 是根目录的副本，发布前先同步，防止漂移。
+cp template.html vscode/template.html
+cp vendor/viewer-static.min.js vscode/viewer-static.min.js
 rm -rf dist/mdhtml
 mkdir -p dist/mdhtml
 cp skills/mdhtml/SKILL.md mdhtml template.html README.md dist/mdhtml/

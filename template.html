@@ -21,12 +21,16 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
 #preview pre code{display:block;padding:1em;background:#f4f6f8;color:#344551;white-space:pre}
 #document-path{display:flex;min-width:0;max-width:min(38vw,440px);overflow:hidden;white-space:nowrap}#path-prefix{min-width:0;overflow:hidden;text-overflow:ellipsis}#path-name{flex:0 1 auto;min-width:0;max-width:180px;overflow:hidden;text-overflow:ellipsis}#connection-status{flex:none}
 @media(max-width:600px){#document-path{max-width:calc(100vw - 170px)}}
+#search-box{display:none;align-items:center;gap:6px;min-width:0}#search-box.open{display:flex}#search-input{width:150px;max-width:22vw;border:1px solid #d3dbe2;border-radius:7px;padding:6px 8px;font:inherit;color:inherit;background:#fff;outline:0}#search-input:focus{border-color:#548ca9;box-shadow:0 0 0 2px #548ca933}#search-count{font-size:12px;color:#6b7c86;white-space:nowrap}#search-close{padding:6px 8px}.search-flash{background:#f8cf70;border-radius:2px;scroll-margin-top:80px;animation:search-flash 1.6s ease forwards}@keyframes search-flash{70%{background:#f8cf70}100%{background:transparent}}@media(max-width:800px){#search-box.open{order:5;width:100%;justify-content:flex-end}#search-input{max-width:none;flex:1}}
+/* file:// 的 localStorage 可能由多个本地文件共享，所以使用 mdhtml 前缀。 */
+:root[data-theme="dark"]{color-scheme:dark;color:#d6dee4;background:#151b20}:root[data-theme="dark"] header,:root[data-theme="dark"] #outline,:root[data-theme="dark"] #notes-panel,:root[data-theme="dark"] #preview{background:#1c252c;border-color:#34414a}:root[data-theme="dark"] header button,:root[data-theme="dark"] .toolbar button,:root[data-theme="dark"] #note-form button,:root[data-theme="dark"] .note-actions button,:root[data-theme="dark"] #selection-action{background:#26333c;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] header button:hover,:root[data-theme="dark"] .toolbar button:hover{background:#34444e}:root[data-theme="dark"] #search-input,:root[data-theme="dark"] #source-editor,:root[data-theme="dark"] #note-form textarea{background:#182127;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] #source-editor{border-color:#34414a}:root[data-theme="dark"] #save-state,:root[data-theme="dark"] #search-count,:root[data-theme="dark"] #outline h2,:root[data-theme="dark"] .note-quote,:root[data-theme="dark"] .note-time,:root[data-theme="dark"] .note-empty{color:#9aaab4}:root[data-theme="dark"] #status{color:#89b9d1}:root[data-theme="dark"] #status.error{color:#f09b9b}:root[data-theme="dark"] #outline a{color:#b4c4ce}:root[data-theme="dark"] #outline a:hover,:root[data-theme="dark"] #outline a.active{color:#a9daf2;background:#263d4b}:root[data-theme="dark"] .markdown-body{color:#d6dee4}:root[data-theme="dark"] .markdown-body a{color:#86c5e8}:root[data-theme="dark"] .markdown-body blockquote{color:#a9b8c1;border-color:#52616b}:root[data-theme="dark"] .markdown-body pre,:root[data-theme="dark"] .markdown-body code{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .markdown-body table th,:root[data-theme="dark"] .markdown-body table td{border-color:#455560}:root[data-theme="dark"] .markdown-body table tr{background:#1c252c;border-color:#455560}:root[data-theme="dark"] .markdown-body table tr:nth-child(2n){background:#222e36}:root[data-theme="dark"] .markdown-body hr{background:#455560;border-color:#455560}:root[data-theme="dark"] .annotation-mark{background:#76602b;color:#fff0c9}:root[data-theme="dark"] .annotation-mark:hover{background:#947638}:root[data-theme="dark"] .note-card,:root[data-theme="dark"] #note-form{background:#202a31;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] .note-card:hover{border-color:#b18c49}:root[data-theme="dark"] #notes-panel h3{color:#d8aa6b}:root[data-theme="dark"] .drawio-missing{background:#453b29;border-color:#846a3d;color:#f1d6a2}:root[data-theme="dark"] .markdown-body .mxgraph{background:#fff;border-radius:8px;padding:8px}:root[data-theme="dark"] #preview pre code{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .search-flash{background:#97753a;color:#fff5d9}
+:root[data-theme="dark"] .hljs{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .hljs-keyword,:root[data-theme="dark"] .hljs-doctag,:root[data-theme="dark"] .hljs-type,:root[data-theme="dark"] .hljs-template-tag,:root[data-theme="dark"] .hljs-variable.language_{color:#ef9ca8}:root[data-theme="dark"] .hljs-title,:root[data-theme="dark"] .hljs-title.class_,:root[data-theme="dark"] .hljs-title.function_{color:#c7a7ee}:root[data-theme="dark"] .hljs-attr,:root[data-theme="dark"] .hljs-attribute,:root[data-theme="dark"] .hljs-literal,:root[data-theme="dark"] .hljs-meta,:root[data-theme="dark"] .hljs-number,:root[data-theme="dark"] .hljs-selector-attr,:root[data-theme="dark"] .hljs-selector-class,:root[data-theme="dark"] .hljs-selector-id,:root[data-theme="dark"] .hljs-variable,:root[data-theme="dark"] .hljs-section{color:#8fbcf2}:root[data-theme="dark"] .hljs-string,:root[data-theme="dark"] .hljs-regexp,:root[data-theme="dark"] .hljs-meta .hljs-string{color:#b2d79a}:root[data-theme="dark"] .hljs-built_in,:root[data-theme="dark"] .hljs-symbol,:root[data-theme="dark"] .hljs-bullet{color:#e6b782}:root[data-theme="dark"] .hljs-comment,:root[data-theme="dark"] .hljs-code,:root[data-theme="dark"] .hljs-formula{color:#94a3ad}:root[data-theme="dark"] .hljs-name,:root[data-theme="dark"] .hljs-quote,:root[data-theme="dark"] .hljs-selector-tag{color:#9bd0b1}:root[data-theme="dark"] .hljs-subst,:root[data-theme="dark"] .hljs-strong,:root[data-theme="dark"] .hljs-emphasis{color:#d6dee4}:root[data-theme="dark"] .hljs-addition{color:#9bd0b1;background:#24392f}:root[data-theme="dark"] .hljs-deletion{color:#ef9ca8;background:#422e35}
 </style>
 </head>
 <body>
 <script id="md-source" type="text/markdown">@@MD@@</script>
 <script id="annotations" type="application/json">@@ANNOTATIONS@@</script>
-<header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="document-path"><span id="path-prefix"></span><span id="path-name"></span></span><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div class="toolbar"><button id="edit-toggle" type="button">编辑</button><button id="authorize-save" type="button" hidden>授权原地保存</button><button id="save" type="button">下载保存</button></div></header>
+<header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="document-path"><span id="path-prefix"></span><span id="path-name"></span></span><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div id="search-box" role="search"><input id="search-input" type="search" aria-label="搜索 Markdown 源码" placeholder="搜索全文"><span id="search-count" role="status" aria-live="polite"></span><button id="search-close" type="button" aria-label="关闭搜索">×</button></div><div class="toolbar"><button id="search-toggle" type="button" aria-label="搜索全文">搜索</button><button id="theme-toggle" type="button" aria-label="切换主题">主题</button><button id="edit-toggle" type="button">编辑</button><button id="authorize-save" type="button" hidden>授权原地保存</button><button id="save" type="button">下载保存</button></div></header>
 <div class="layout"><nav id="outline" aria-label="文档大纲"><h2>大纲</h2><div id="outline-links"></div></nav><main id="main"><article id="viewer" class="markdown-body"></article><div id="editor"><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码"></textarea><article id="preview" class="markdown-body"></article></div></main><aside id="notes-panel" aria-label="批注"><h2><button id="notes-toggle" type="button" aria-expanded="true">批注</button> <span id="notes-count"></span></h2><div id="notes-content"></div></aside></div>
 <button id="selection-action" type="button">批注</button><div id="note-form" role="dialog" aria-label="编辑批注"><strong id="note-form-title">新建批注</strong><textarea id="note-input" aria-label="批注内容，支持 Markdown"></textarea><div id="note-form-actions"><button id="note-cancel" type="button">取消</button><button id="note-confirm" type="button">确定</button></div></div>
 <script id="marked-library">/**
@@ -1348,6 +1352,31 @@ let pendingSelection = null;
 let editingNote = null;
 let reattachingNote = null;
 let resolvedNotes = new Map();
+const searchBox = document.getElementById("search-box");
+const searchInput = document.getElementById("search-input");
+const searchCount = document.getElementById("search-count");
+const themeButton = document.getElementById("theme-toggle");
+let searchMatches = [];
+let searchIndex = -1;
+let searchMarks = [];
+let searchFlashTimer;
+const themePreference = window.matchMedia("(prefers-color-scheme: dark)");
+let manualTheme;
+try { manualTheme = localStorage.getItem("mdhtml-theme"); } catch (_) { /* file:// 可能禁用存储 */ }
+if (manualTheme !== "light" && manualTheme !== "dark") manualTheme = null;
+function applyTheme() {
+  const dark = (manualTheme === "dark" || (!manualTheme && themePreference.matches));
+  document.documentElement.dataset.theme = dark ? "dark" : "light";
+  themeButton.title = dark ? "切换浅色主题" : "切换深色主题";
+  themeButton.setAttribute("aria-pressed", String(dark));
+}
+applyTheme();
+themePreference.addEventListener?.("change", () => { if (!manualTheme) applyTheme(); });
+themeButton.addEventListener("click", () => {
+  manualTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  try { localStorage.setItem("mdhtml-theme", manualTheme); } catch (_) { /* 存储不可用时仍可切换 */ }
+  applyTheme();
+});
 
 // 先加倍所有反斜杠，再转义结束标签；解码按相反顺序处理，保留原文中的 <\/script。
 function escapeMarkdown(value) {
@@ -1590,6 +1619,116 @@ function textNodes(root) {
   }
   return {nodes, text:nodes.map(part => part.node.textContent).join("")};
 }
+function clearSearchFlash() {
+  clearTimeout(searchFlashTimer);
+  for (const mark of searchMarks) {
+    if (!mark.isConnected) continue;
+    if (mark.nodeName === "MARK") mark.replaceWith(...mark.childNodes);
+    else mark.classList.remove("search-flash");
+  }
+  searchMarks = [];
+}
+function searchSource() {
+  const source = currentMarkdown(), query = searchInput.value;
+  searchMatches = [];
+  if (query) {
+    const haystack = source.toLocaleLowerCase(), needle = query.toLocaleLowerCase();
+    for (let at = haystack.indexOf(needle); at !== -1; at = haystack.indexOf(needle, at + 1)) {
+      searchMatches.push({start:at, end:at + query.length});
+    }
+  }
+  searchIndex = searchMatches.length ? 0 : -1;
+  searchCount.textContent = !query ? "" : searchIndex < 0 ? "无结果" : `第 ${searchIndex + 1} / 共 ${searchMatches.length} 项`;
+  clearSearchFlash();
+  if (searchIndex >= 0) jumpToSearch();
+}
+function openSearch() {
+  searchBox.classList.add("open");
+  searchInput.focus();
+  searchInput.select();
+}
+function closeSearch() {
+  clearSearchFlash();
+  searchBox.classList.remove("open");
+  searchInput.value = "";
+  searchMatches = [];
+  searchIndex = -1;
+  searchCount.textContent = "";
+  document.getElementById("search-toggle").focus();
+}
+function sourceContext(value) {
+  return value.replace(/<[^>]*>|!?(?:\[|\])|[`*_~#>|]/g, "").replace(/\]\([^)]*\)/g, "").replace(/\s+/g, " ").trim();
+}
+function renderedSearchInterval(match, parts) {
+  const source = currentMarkdown(), exact = source.slice(match.start, match.end);
+  const text = parts.text, lower = text.toLocaleLowerCase(), needle = exact.toLocaleLowerCase();
+  const before = sourceContext(source.slice(Math.max(0, match.start - 40), match.start)).toLocaleLowerCase().slice(-24);
+  const after = sourceContext(source.slice(match.end, match.end + 40)).toLocaleLowerCase().slice(0, 24);
+  const candidates = [];
+  for (let at = lower.indexOf(needle); at !== -1; at = lower.indexOf(needle, at + 1)) {
+    let score = 0;
+    for (let i = 1; i <= before.length && lower[at - i] === before[before.length - i]; i++) score++;
+    for (let i = 0; i < after.length && lower[at + needle.length + i] === after[i]; i++) score++;
+    candidates.push({start:at, end:at + exact.length, score});
+  }
+  candidates.sort((a, b) => b.score - a.score || Math.abs(a.start / Math.max(1, text.length) - match.start / source.length) - Math.abs(b.start / Math.max(1, text.length) - match.start / source.length));
+  return candidates[0] || null;
+}
+function flashRenderedMatch(match) {
+  clearSearchFlash();
+  const parts = textNodes(viewer), interval = renderedSearchInterval(match, parts);
+  if (interval) {
+    for (const part of parts.nodes) {
+      const begin = Math.max(interval.start, part.start), end = Math.min(interval.end, part.end);
+      if (end <= begin) continue;
+      const range = document.createRange();
+      range.setStart(part.node, begin - part.start);
+      range.setEnd(part.node, end - part.start);
+      const mark = document.createElement("mark");
+      mark.className = "search-flash";
+      range.surroundContents(mark);
+      searchMarks.push(mark);
+    }
+    searchMarks[0]?.scrollIntoView({behavior:"smooth", block:"center"});
+  } else {
+    // 源码命中 Markdown 语法或链接目标时没有对应文字，退到所在正文块。
+    const source = currentMarkdown();
+    const line = source.slice(source.lastIndexOf("\n", match.start - 1) + 1, source.indexOf("\n", match.end) < 0 ? source.length : source.indexOf("\n", match.end));
+    const hint = sourceContext(line).slice(0, 32).toLocaleLowerCase();
+    const blocks = [...viewer.querySelectorAll("h1,h2,h3,h4,h5,h6,p,li,pre,blockquote,td,th")];
+    const block = blocks.find(item => hint && item.textContent.toLocaleLowerCase().includes(hint))
+      || blocks[Math.min(blocks.length - 1, Math.floor(match.start / Math.max(1, source.length) * blocks.length))];
+    if (block) {
+      block.classList.add("search-flash");
+      searchMarks.push(block);
+      block.scrollIntoView({behavior:"smooth", block:"center"});
+    }
+  }
+  searchFlashTimer = setTimeout(clearSearchFlash, 1800);
+}
+function jumpToSearch() {
+  if (searchIndex < 0) return;
+  const match = searchMatches[searchIndex];
+  searchCount.textContent = `第 ${searchIndex + 1} / 共 ${searchMatches.length} 项`;
+  if (document.body.classList.contains("editing")) {
+    sourceEditor.focus();
+    sourceEditor.setSelectionRange(match.start, match.end);
+    const before = sourceEditor.value.slice(0, match.start);
+    const line = before.split("\n").length - 1;
+    sourceEditor.scrollTop = Math.max(0, line * parseFloat(getComputedStyle(sourceEditor).lineHeight) - sourceEditor.clientHeight / 3);
+    searchInput.focus();
+  } else flashRenderedMatch(match);
+}
+document.getElementById("search-toggle").addEventListener("click", openSearch);
+document.getElementById("search-close").addEventListener("click", closeSearch);
+searchInput.addEventListener("input", searchSource);
+searchInput.addEventListener("keydown", event => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  if (!searchMatches.length) return;
+  searchIndex = (searchIndex + (event.shiftKey ? -1 : 1) + searchMatches.length) % searchMatches.length;
+  jumpToSearch();
+});
 function selectionOffsets(range) {
   const before = document.createRange();
   before.selectNodeContents(viewer);
@@ -1692,12 +1831,14 @@ function closeNoteForm() {
   pendingSelection = null;
 }
 function renderView() {
+  clearSearchFlash();
   renderMarkdown(markdown, viewer);
   document.getElementById("doc-title").textContent = safeTitle(markdown);
   document.title = safeTitle(markdown);
   // 大纲 ID 和批注锚点需在首屏可交互时就绪，暂不延后构建。
   buildOutline();
   reanchor();
+  if (searchBox.classList.contains("open")) searchSource();
 }
 function setEditing(editing) {
   clearTimeout(editTimer);
@@ -1705,6 +1846,7 @@ function setEditing(editing) {
   document.getElementById("edit-toggle").textContent = editing ? "查看" : "编辑";
   if (editing) { sourceEditor.value = markdown; renderMarkdown(markdown, preview); sourceEditor.focus(); }
   else { markdown = sourceEditor.value; renderView(); }
+  if (editing && searchBox.classList.contains("open")) searchSource();
   updateSaveState();
 }
 document.getElementById("edit-toggle").addEventListener("click", () => setEditing(!document.body.classList.contains("editing")));
@@ -1808,6 +1950,7 @@ notesContent.addEventListener("click", event => {
 });
 sourceEditor.addEventListener("input", () => {
   updateSaveState();
+  if (searchBox.classList.contains("open")) searchSource();
   clearTimeout(editTimer);
   const length = sourceEditor.value.length;
   const delay = length > EDIT_PREVIEW_DEBOUNCE.longAbove ? EDIT_PREVIEW_DEBOUNCE.longMs
@@ -1816,8 +1959,10 @@ sourceEditor.addEventListener("input", () => {
   editTimer = setTimeout(() => renderMarkdown(sourceEditor.value, preview), delay);
 });
 document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && searchBox.classList.contains("open")) { event.preventDefault(); closeSearch(); return; }
   if (!(event.metaKey || event.ctrlKey)) return;
   const key = event.key.toLowerCase();
+  if (key === "f") { event.preventDefault(); openSearch(); return; }
   if (key === "e") { event.preventDefault(); setEditing(!document.body.classList.contains("editing")); }
   if (key === "s") { event.preventDefault(); saveDocument(); }
 });

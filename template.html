@@ -16,13 +16,13 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
   Outdated base version: https://github.com/primer/github-syntax-light
   Current colors taken from GitHub's CSS
 */.hljs{color:#24292e;background:#fff}.hljs-doctag,.hljs-keyword,.hljs-meta .hljs-keyword,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language_{color:#d73a49}.hljs-title,.hljs-title.class_,.hljs-title.class_.inherited__,.hljs-title.function_{color:#6f42c1}.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable{color:#005cc5}.hljs-meta .hljs-string,.hljs-regexp,.hljs-string{color:#032f62}.hljs-built_in,.hljs-symbol{color:#e36209}.hljs-code,.hljs-comment,.hljs-formula{color:#6a737d}.hljs-name,.hljs-quote,.hljs-selector-pseudo,.hljs-selector-tag{color:#22863a}.hljs-subst{color:#24292e}.hljs-section{color:#005cc5;font-weight:700}.hljs-bullet{color:#735c0f}.hljs-emphasis{color:#24292e;font-style:italic}.hljs-strong{color:#24292e;font-weight:700}.hljs-addition{color:#22863a;background-color:#f0fff4}.hljs-deletion{color:#b31d28;background-color:#ffeef0}
-:root{color-scheme:light;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#263238;background:#f7f8fa}*{box-sizing:border-box}body{margin:0}button{font:inherit;cursor:pointer}header{height:56px;display:flex;align-items:center;gap:12px;padding:0 20px;background:#fff;border-bottom:1px solid #e3e7eb;position:sticky;top:0;z-index:10}header strong{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}header button,.toolbar button{border:1px solid #d3dbe2;border-radius:7px;background:#fff;padding:6px 11px;color:#344551}header button:hover,.toolbar button:hover{background:#edf4f7}#status{font-size:12px;color:#6b7c86}.layout{display:flex;min-height:calc(100vh - 56px)}#outline{width:250px;flex:none;border-right:1px solid #e3e7eb;background:#fff;padding:20px 12px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto}#outline h2{margin:0 8px 12px;font-size:12px;color:#76838a;letter-spacing:.08em}#outline a{display:block;text-decoration:none;color:#586871;padding:7px 10px;border-radius:6px;font-size:13px;line-height:1.4}#outline a[data-level="2"]{padding-left:22px}#outline a[data-level="3"]{padding-left:34px}#outline a:hover,#outline a.active{color:#175e87;background:#eaf4fa}#outline.empty{display:none}body.outline-closed #outline{display:none}#main{min-width:0;flex:1}#viewer{max-width:880px;margin:0 auto;padding:32px 44px 100px}.markdown-body{line-height:1.75;overflow-wrap:anywhere;font-size:16px}.markdown-body img{max-width:100%;height:auto}.markdown-body pre{overflow:auto;border-radius:8px}.markdown-body table{display:block;overflow-x:auto}.markdown-body blockquote{color:#63717a}.markdown-body h1,.markdown-body h2,.markdown-body h3{scroll-margin-top:76px}.markdown-body .mxgraph{min-height:100px;overflow:auto}.drawio-missing{padding:16px;border:1px solid #e2bc78;background:#fff7e8;border-radius:7px;color:#76531e}#editor{display:none;height:calc(100vh - 56px)}body.editing #editor{display:grid;grid-template-columns:minmax(280px,1fr) minmax(280px,1fr)}body.editing #viewer{display:none}#source-editor{width:100%;height:100%;resize:none;border:0;border-right:1px solid #dfe5e9;outline:0;background:#fdfefe;padding:24px;font:14px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}#preview{overflow:auto;padding:24px 36px;background:#fff}.toolbar{display:flex;gap:8px}@media(max-width:800px){#outline{width:190px}#viewer{padding:24px}body.editing #editor{grid-template-columns:1fr;grid-template-rows:50% 50%}#source-editor{border-right:0;border-bottom:1px solid #dfe5e9}}@media(max-width:600px){#outline{display:none}header{padding:0 10px}#status{display:none}}
+:root{color-scheme:light;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#263238;background:#f7f8fa}*{box-sizing:border-box}body{margin:0}button{font:inherit;cursor:pointer}header{min-height:56px;display:flex;align-items:center;gap:12px;padding:0 20px;background:#fff;border-bottom:1px solid #e3e7eb;position:sticky;top:0;z-index:10}header strong{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}header button,.toolbar button{border:1px solid #d3dbe2;border-radius:7px;background:#fff;padding:6px 11px;color:#344551}header button:hover,.toolbar button:hover{background:#edf4f7}header button:disabled{opacity:.6;cursor:default}#save-state{display:flex;align-items:center;gap:8px;font-size:12px;color:#6b7c86;min-width:0}#connection-status{display:inline-block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dirty-indicator{display:none;white-space:nowrap;color:#aa6220}#dirty-indicator::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#d88927;margin-right:5px;vertical-align:1px}body.dirty #dirty-indicator{display:inline}#status{font-size:12px;color:#38677e;white-space:nowrap}#status.error{color:#b43232}.layout{display:flex;min-height:calc(100vh - 56px)}#outline{width:250px;flex:none;border-right:1px solid #e3e7eb;background:#fff;padding:20px 12px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto}#outline h2{margin:0 8px 12px;font-size:12px;color:#76838a;letter-spacing:.08em}#outline a{display:block;text-decoration:none;color:#586871;padding:7px 10px;border-radius:6px;font-size:13px;line-height:1.4}#outline a[data-level="2"]{padding-left:22px}#outline a[data-level="3"]{padding-left:34px}#outline a:hover,#outline a.active{color:#175e87;background:#eaf4fa}#outline.empty{display:none}body.outline-closed #outline{display:none}#main{min-width:0;flex:1}#viewer{max-width:880px;margin:0 auto;padding:32px 44px 100px}.markdown-body{line-height:1.75;overflow-wrap:anywhere;font-size:16px}.markdown-body img{max-width:100%;height:auto}.markdown-body pre{overflow:auto;border-radius:8px}.markdown-body table{display:block;overflow-x:auto}.markdown-body blockquote{color:#63717a}.markdown-body h1,.markdown-body h2,.markdown-body h3{scroll-margin-top:76px}.markdown-body .mxgraph{min-height:100px;overflow:auto}.drawio-missing{padding:16px;border:1px solid #e2bc78;background:#fff7e8;border-radius:7px;color:#76531e}#editor{display:none;height:calc(100vh - 56px)}body.editing #editor{display:grid;grid-template-columns:minmax(280px,1fr) minmax(280px,1fr)}body.editing #viewer{display:none}#source-editor{width:100%;height:100%;resize:none;border:0;border-right:1px solid #dfe5e9;outline:0;background:#fdfefe;padding:24px;font:14px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}#preview{overflow:auto;padding:24px 36px;background:#fff}.toolbar{display:flex;gap:8px}@media(max-width:800px){#outline{width:190px}#viewer{padding:24px}body.editing #editor{grid-template-columns:1fr;grid-template-rows:50% 50%}#source-editor{border-right:0;border-bottom:1px solid #dfe5e9}}@media(max-width:600px){#outline{display:none}header{padding:8px 10px;flex-wrap:wrap}header strong{flex-basis:calc(100% - 48px)}#save-state{order:3;flex:1}#status{order:4}.toolbar{order:2}}
 </style>
 </head>
 <body>
 <script id="md-source" type="text/markdown">@@MD@@</script>
 <script id="annotations" type="application/json">@@ANNOTATIONS@@</script>
-<header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="status"></span><div class="toolbar"><button id="edit-toggle" type="button">编辑</button><button id="save" type="button">下载保存</button></div></header>
+<header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div class="toolbar"><button id="edit-toggle" type="button">编辑</button><button id="authorize-save" type="button" hidden>授权原地保存</button><button id="save" type="button">下载保存</button></div></header>
 <div class="layout"><nav id="outline" aria-label="文档大纲"><h2>大纲</h2><div id="outline-links"></div></nav><main id="main"><article id="viewer" class="markdown-body"></article><div id="editor"><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码"></textarea><article id="preview" class="markdown-body"></article></div></main></div>
 <script id="marked-library">/**
  * marked v12.0.2 - a markdown parser
@@ -1266,6 +1266,14 @@ const viewerScript = document.getElementById("drawio-viewer");
 let markdown = decodeMarkdown(mdBlock.textContent);
 let annotations = JSON.parse(annotationBlock.textContent);
 let editTimer;
+let fileHandle = null;
+let savedMarkdown = markdown;
+let savedAnnotations = JSON.stringify(annotations);
+let saving = false;
+let feedbackTimer;
+const canSaveInPlace = typeof window.showOpenFilePicker === "function";
+const saveButton = document.getElementById("save");
+const authorizeButton = document.getElementById("authorize-save");
 
 // 先加倍所有反斜杠，再转义结束标签；解码按相反顺序处理，保留原文中的 <\/script。
 function escapeMarkdown(value) {
@@ -1303,17 +1311,82 @@ function downloadHtml(html) {
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
-// M2 在这里接入 File System Access API 原地写回。
-function persistHtml(html) { downloadHtml(html); }
-function saveDocument() {
-  if (document.body.classList.contains("editing")) markdown = sourceEditor.value;
-  persistHtml(serialize(markdown, annotations));
-  setStatus("已下载 HTML");
-  if (containsDrawio(markdown) && !viewerScript) {
-    alert("包含 drawio 需重新 build 注入 viewer。已下载含图源的 HTML；请用 mdhtml extract 提取 Markdown，再运行 mdhtml build。");
+function currentMarkdown() {
+  return document.body.classList.contains("editing") ? sourceEditor.value : markdown;
+}
+function updateSaveState() {
+  document.body.classList.toggle("dirty", currentMarkdown() !== savedMarkdown || JSON.stringify(annotations) !== savedAnnotations);
+  const connection = document.getElementById("connection-status");
+  connection.textContent = canSaveInPlace
+    ? (fileHandle ? `已连接：${fileHandle.name}` : "尚未授权原地保存")
+    : "浏览器不支持原地保存；下载后请手动覆盖原文件";
+  connection.title = connection.textContent;
+  authorizeButton.hidden = !canSaveInPlace || !!fileHandle;
+  saveButton.textContent = canSaveInPlace ? "原地保存" : "下载保存";
+}
+function setStatus(message, error = false) {
+  const status = document.getElementById("status");
+  status.textContent = message;
+  status.classList.toggle("error", error);
+  clearTimeout(feedbackTimer);
+  if (!error && message) feedbackTimer = setTimeout(() => { status.textContent = ""; }, 3000);
+}
+async function authorizeSave() {
+  if (fileHandle) return fileHandle;
+  const expectedName = decodeURIComponent(location.pathname.split("/").pop() || "");
+  const [selected] = await window.showOpenFilePicker({multiple:false, types:[{description:"HTML 文件", accept:{"text/html":[".html", ".htm"]}}]});
+  if (!selected || selected.name !== expectedName) {
+    throw new Error(`请选择当前文件 ${expectedName}，不能选择其他文件。`);
+  }
+  fileHandle = selected;
+  updateSaveState();
+  setStatus("原地保存已授权");
+  return fileHandle;
+}
+async function persistHtml(html) {
+  if (!canSaveInPlace) { downloadHtml(html); return false; }
+  const handle = await authorizeSave();
+  const writable = await handle.createWritable();
+  try {
+    await writable.write(html);
+    await writable.close();
+  } catch (error) {
+    try { await writable.abort(); } catch (_) { /* 已关闭或无法中止 */ }
+    throw error;
+  }
+  return true;
+}
+async function saveDocument() {
+  if (saving) return;
+  saving = true;
+  saveButton.disabled = true;
+  try {
+    const value = currentMarkdown();
+    const notes = JSON.stringify(annotations);
+    const savedInPlace = await persistHtml(serialize(value, annotations));
+    markdown = value;
+    if (savedInPlace) {
+      savedMarkdown = value;
+      savedAnnotations = notes;
+      setStatus("已保存");
+    } else {
+      setStatus("已下载 HTML；请手动覆盖原文件");
+    }
+    updateSaveState();
+    if (containsDrawio(value) && !viewerScript) {
+      alert("包含 drawio 需重新 build 注入 viewer。请用 mdhtml extract 提取 Markdown，再运行 mdhtml build。");
+    }
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      const message = `保存失败：${error.message || error}`;
+      setStatus(message, true);
+      alert(message);
+    }
+  } finally {
+    saving = false;
+    saveButton.disabled = false;
   }
 }
-function setStatus(message) { document.getElementById("status").textContent = message; }
 function renderMarkdown(value, target) {
   const diagrams = [];
   const renderer = new marked.Renderer();
@@ -1372,14 +1445,26 @@ function setEditing(editing) {
   document.getElementById("edit-toggle").textContent = editing ? "查看" : "编辑";
   if (editing) { sourceEditor.value = markdown; renderMarkdown(markdown, preview); sourceEditor.focus(); }
   else { markdown = sourceEditor.value; renderView(); }
+  updateSaveState();
 }
 document.getElementById("edit-toggle").addEventListener("click", () => setEditing(!document.body.classList.contains("editing")));
-document.getElementById("save").addEventListener("click", saveDocument);
+saveButton.addEventListener("click", saveDocument);
+authorizeButton.addEventListener("click", async () => {
+  try { await authorizeSave(); }
+  catch (error) {
+    if (error.name !== "AbortError") {
+      const message = `授权失败：${error.message || error}`;
+      setStatus(message, true);
+      alert(message);
+    }
+  }
+});
 document.getElementById("outline-toggle").addEventListener("click", () => {
   const closed = document.body.classList.toggle("outline-closed");
   document.getElementById("outline-toggle").setAttribute("aria-expanded", String(!closed));
 });
 sourceEditor.addEventListener("input", () => {
+  updateSaveState();
   clearTimeout(editTimer);
   editTimer = setTimeout(() => renderMarkdown(sourceEditor.value, preview), 160);
 });
@@ -1390,6 +1475,12 @@ document.addEventListener("keydown", event => {
   if (key === "s") { event.preventDefault(); saveDocument(); }
 });
 window.addEventListener("scroll", updateOutline, {passive:true});
+window.addEventListener("beforeunload", event => {
+  if (!document.body.classList.contains("dirty")) return;
+  event.preventDefault();
+  event.returnValue = "";
+});
+updateSaveState();
 renderView();
 </script>
 </body>

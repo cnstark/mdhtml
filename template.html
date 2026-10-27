@@ -45,7 +45,7 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
 </head>
 <body>
 <script id="md-source" type="text/markdown">@@MD@@</script>
-<header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="document-path"><span id="path-prefix"></span><span id="path-name"></span></span><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div id="search-box" role="search"><input id="search-input" type="search" aria-label="搜索 Markdown 源码" placeholder="搜索全文"><span id="search-count" role="status" aria-live="polite"></span><button id="search-close" type="button" aria-label="关闭搜索">×</button></div><div class="toolbar"><button id="search-toggle" type="button" aria-label="搜索全文">搜索</button><button id="theme-toggle" type="button" aria-label="切换主题">主题</button><button id="edit-toggle" type="button">编辑</button><button id="authorize-save" type="button" hidden>授权原地保存</button><button id="save" type="button">下载保存</button></div></header>
+<header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="document-path"><span id="path-prefix"></span><span id="path-name"></span></span><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div id="search-box" role="search"><input id="search-input" type="search" aria-label="搜索 Markdown 源码" placeholder="搜索全文"><span id="search-count" role="status" aria-live="polite"></span><button id="search-close" type="button" aria-label="关闭搜索">×</button></div><div class="toolbar"><button id="search-toggle" type="button" aria-label="搜索全文">搜索</button><button id="theme-toggle" type="button" aria-label="切换主题">主题</button><button id="edit-toggle" type="button">编辑</button><button id="export-md" type="button" aria-label="导出 Markdown 源码">导出 MD</button><button id="authorize-save" type="button" hidden>授权原地保存</button><button id="save" type="button">下载保存</button></div></header>
 <div class="layout"><nav id="outline" aria-label="文档大纲"><h2>大纲</h2><div id="outline-links"></div></nav><main id="main"><article id="viewer" class="markdown-body"></article><div id="editor"><div class="source-pane"><pre class="hl-layer editor-text" aria-hidden="true"><code id="highlighted-source"></code></pre><textarea id="source-editor" class="editor-text" spellcheck="false" aria-label="Markdown 源码"></textarea></div><article id="preview" class="markdown-body"></article></div></main><aside id="notes-panel" aria-label="批注"><h2><button id="notes-toggle" type="button" aria-expanded="true">批注</button> <span id="notes-count"></span></h2><div id="notes-content"></div></aside></div>
 <button id="selection-action" type="button">批注</button><div id="note-popover" class="note-popover" role="dialog" aria-label="正文批注"></div><div id="note-form" role="dialog" aria-label="编辑批注"><div id="note-form-quote" class="note-quote"></div><strong id="note-form-title">新建批注</strong><textarea id="note-input" aria-label="批注内容，支持 Markdown"></textarea><div id="note-form-actions"><button id="note-cancel" type="button">取消</button><button id="note-confirm" type="button">确定</button></div></div>
 <script id="marked-library">/**
@@ -2071,6 +2071,19 @@ function setEditing(editing) {
   updateSaveState();
 }
 document.getElementById("edit-toggle").addEventListener("click", () => setEditing(!document.body.classList.contains("editing")));
+// 导出当前 Markdown 源码（含末尾批注注释块）为 .md 下载；文件名由当前页面路径推导（demo.md.html → demo.md）
+document.getElementById("export-md").addEventListener("click", () => {
+  const base = decodeURIComponent(location.pathname.split("/").pop() || "document").replace(/\.md\.html$/i, "").replace(/\.html?$/i, "");
+  const blob = new Blob([currentMarkdown()], {type: "text/markdown;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${base}.md`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+  setStatus("已导出 Markdown");
+});
 saveButton.addEventListener("click", saveDocument);
 authorizeButton.addEventListener("click", async () => {
   try { await authorizeSave(); }

@@ -20,6 +20,7 @@ NOTES_BLOCK = re.compile(r'<script id="annotations" type="application/json">(.*?
 DRAWIO_BLOCK = re.compile(r'^\s*```drawio(?:\s+[^\n]*)?\n[\s\S]*?^\s*```\s*$', re.I | re.M)
 IMAGE = re.compile(r'(!\[[^\]]*\]\(\s*)(<[^>]+>|[^\s)]+)([^\n)]*\))')
 IMAGE_REF = re.compile(r'(?m)^(\s*\[[^\]]+\]:\s*)(<[^>]+>|\S+)(.*)$')
+FENCE = re.compile(r'^ {0,3}(`{3,}|~{3,})')
 
 
 class ChineseArgumentParser(argparse.ArgumentParser):
@@ -84,6 +85,38 @@ def process_images(source, base_dir, embed):
     return source, sorted(warnings)
 
 
+def expand_drawio_images(source, base_dir):
+    """在注入模板前，把本地 .drawio 图片引用展开为内嵌代码块。"""
+    lines = []
+    fence = None
+    for line in source.splitlines(keepends=True):
+        marker = FENCE.match(line)
+        if marker:
+            run = marker.group(1)
+            if fence is None:
+                fence = run
+            elif run[0] == fence[0] and len(run) >= len(fence) and not line[marker.end():].strip():
+                fence = None
+        if fence is not None or marker:
+            lines.append(line)
+            continue
+
+        def expand(match):
+            raw = match.group(2)
+            destination = raw[1:-1] if raw.startswith('<') and raw.endswith('>') else raw
+            parsed = urlsplit(destination)
+            if not parsed.path.lower().endswith('.drawio') or parsed.scheme or parsed.netloc or destination.startswith(('#', '//')):
+                return match.group(0)
+            path = base_dir / unquote(parsed.path)
+            if not path.is_file():
+                raise FileNotFoundError(f'drawio 文件不存在：{destination}')
+            xml = path.read_text(encoding='utf-8').strip()
+            return f'\n\n```drawio\n{xml}\n```\n\n'
+
+        lines.append(IMAGE.sub(expand, line))
+    return ''.join(lines)
+
+
 def template_text():
     template = TEMPLATE_PATH.read_text(encoding='utf-8')
     for marker in ('@@TITLE@@', '@@MD@@', '@@ANNOTATIONS@@', '@@TEMPLATE_BASE64@@', '<!--@@VIEWER@@-->'):
@@ -97,6 +130,7 @@ def template_text():
 def build(args):
     source_path = Path(args.input)
     source = source_path.read_text(encoding='utf-8')
+    source = expand_drawio_images(source, source_path.parent)
     source, warnings = process_images(source, source_path.parent, args.embed_images)
     for warning in warnings:
         print(f'警告：{warning}', file=sys.stderr)
@@ -145,11 +179,15 @@ def parse_document(path):
 def main():
     parser = ChineseArgumentParser(description='Markdown 单文件 HTML 构建与提取工具')
     commands = parser.add_subparsers(dest='command', required=True)
-    build_parser = commands.add_parser('build', help='将 Markdown 构建为 HTML')
+    build_parser = commands.add_parser(
+        'build', help='将 Markdown 构建为 HTML；本地 .drawio 图片引用展开为 drawio 代码块',
+        description='构建 HTML；本地 .drawio 图片引用会展开为 drawio 代码块，文件不存在时中止。')
     build_parser.add_argument('input', help='Markdown 文件路径')
     build_parser.add_argument('-o', '--output', help='输出 HTML 路径，默认在原文件名后加 .html')
     build_parser.add_argument('--embed-images', action='store_true', help='将本地图片嵌入为 data URI')
-    extract_parser = commands.add_parser('extract', help='提取原始 Markdown 到标准输出')
+    extract_parser = commands.add_parser(
+        'extract', help='提取内嵌 Markdown；已展开的 .drawio 引用保留为代码块，不还原引用',
+        description='提取构建后的 Markdown；.drawio 引用已展开为代码块，不还原为文件引用。')
     extract_parser.add_argument('input', help='HTML 文件路径')
     check_parser = commands.add_parser('check', help='校验数据块及转义规则')
     check_parser.add_argument('input', help='HTML 文件路径')

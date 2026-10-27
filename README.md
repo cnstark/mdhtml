@@ -10,6 +10,16 @@
 - **保存**：File System Access API 原地覆写（Chrome/Edge），其他浏览器降级为下载覆盖
 - **单文件**：应用代码、渲染库、文档数据全部内联，零 CDN 依赖；图片可选 base64 内联
 
+## 截图
+
+| 查看（大纲 / 表格 / drawio / 批注高亮） | 批注气泡与多轮回复 |
+|---|---|
+| ![查看模式](docs/screenshots/view.png) | ![批注气泡](docs/screenshots/annotation-popover.png) |
+
+| 编辑（语法高亮 + 实时预览分屏） | 暗色主题 |
+|---|---|
+| ![编辑模式](docs/screenshots/edit.png) | ![暗色主题](docs/screenshots/dark.png) |
+
 ## 使用
 
 ```bash

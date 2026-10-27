@@ -1755,19 +1755,57 @@ function renderMarkdown(value, target) {
     return `<pre><code${cls}>${escapeHtml(code)}</code></pre>`;
   };
   target.innerHTML = DOMPurify.sanitize(marked.parse(value, {gfm:true, breaks:false, renderer}), {ADD_ATTR:["data-drawio-index"]});
+  if (window.mdhtmlResourceBase) {
+    target.querySelectorAll("img[src]").forEach(img => {
+      const src = img.getAttribute("src");
+      const url = hostResourceUrl(src);
+      if (!url) return;
+      if (/\.drawio(?:[?#]|$)/i.test(src)) {
+        const slot = document.createElement("div");
+        slot.className = "drawio-loading";
+        img.replaceWith(slot);
+        fetch(url).then(response => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.text();
+        }).then(xml => {
+          if (!target.contains(slot)) return;
+          setDrawioSlot(slot, xml);
+          if (viewerScript && window.GraphViewer) GraphViewer.processElements();
+        }).catch(() => {
+          if (!target.contains(slot)) return;
+          slot.className = "drawio-missing";
+          slot.textContent = "无法加载 drawio 文件。";
+        });
+      } else {
+        img.setAttribute("src", url);
+      }
+    });
+  }
   // 批注和完整代码高亮只属于 #viewer；编辑预览保持轻量。
   if (target === viewer) target.querySelectorAll("pre code").forEach(block => hljs.highlightElement(block));
-  target.querySelectorAll(".drawio-slot").forEach(slot => {
+  target.querySelectorAll(".drawio-slot[data-drawio-index]").forEach(slot => {
     const xml = diagrams[Number(slot.dataset.drawioIndex)];
-    if (viewerScript && window.GraphViewer) {
-      slot.className = "mxgraph";
-      slot.setAttribute("data-mxgraph", JSON.stringify({xml, lightbox:true, nav:true, resize:true, toolbar:"zoom layers lightbox"}));
-    } else {
-      slot.className = "drawio-missing";
-      slot.textContent = "此图需要使用 mdhtml build 重新生成 HTML。";
-    }
+    setDrawioSlot(slot, xml);
   });
   if (viewerScript && window.GraphViewer && diagrams.length) GraphViewer.processElements();
+}
+function hostResourceUrl(src) {
+  if (!window.mdhtmlResourceBase || !src || /^(?:[a-z][a-z\d+.-]*:|\/|\\|#)/i.test(src)) return null;
+  const match = src.match(/^([^?#]*)([?#][\s\S]*)?$/);
+  const encodedPath = match[1].split("/").map(segment => {
+    try { return encodeURIComponent(decodeURIComponent(segment)); }
+    catch (_) { return encodeURIComponent(segment); }
+  }).join("/");
+  return window.mdhtmlResourceBase + encodedPath + (match[2] || "");
+}
+function setDrawioSlot(slot, xml) {
+  if (viewerScript && window.GraphViewer) {
+    slot.className = "mxgraph";
+    slot.setAttribute("data-mxgraph", JSON.stringify({xml, lightbox:true, nav:true, resize:true, toolbar:"zoom layers lightbox"}));
+  } else {
+    slot.className = "drawio-missing";
+    slot.textContent = "此图需要使用 mdhtml build 重新生成 HTML。";
+  }
 }
 function buildOutline() {
   const links = document.getElementById("outline-links");

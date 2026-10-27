@@ -5,6 +5,7 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
 const drawioBlock = /^\s*```drawio(?:\s+[^\n]*)?\n[\s\S]*?^\s*```\s*$/im;
+const drawioImage = /!\[[^\]\n]*\]\(\s*(?:<[^>\n]+\.drawio(?:[?#][^>\n]*)?>|[^\s)]+\.drawio(?:[?#][^\s)]*)?)(?:\s+["'][^"']*["'])?\s*\)/i;
 
 function escapeMarkdown(value) {
   return value.replace(/\\/g, '\\\\').replace(/<[/]script/gi, '<\\/script');
@@ -14,14 +15,16 @@ function escapeHtml(value) {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function buildWebviewHtml(template, markdown, {fileName = 'Markdown 文档', viewerCode = '', cspSource = ''} = {}) {
+function buildWebviewHtml(template, markdown, {fileName = 'Markdown 文档', viewerCode = '', cspSource = '', resourceBase = ''} = {}) {
   const heading = markdown.match(/^#\s+(.+)$/m);
   const title = heading ? heading[1].trim() : fileName.replace(/\.md$/i, '');
-  const viewer = drawioBlock.test(markdown) ? `<script id="drawio-viewer">${viewerCode}</script>` : '';
+  const viewer = drawioBlock.test(markdown) || drawioImage.test(markdown) ? `<script id="drawio-viewer">${viewerCode}</script>` : '';
+  const resourceScript = resourceBase ? `<script>window.mdhtmlResourceBase = ${JSON.stringify(resourceBase.replace(/\/?$/, '/')).replace(/</g, '\\u003c')};</script>\n` : '';
   // 本地 Custom Editor 承载模板内联库、drawio viewer 的 eval 和样式；data: 用于内嵌图片。
-  const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; img-src data: ${cspSource}; font-src data:;">`;
+  const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; img-src data: ${cspSource}; connect-src ${cspSource}; font-src data:;">`;
   return template.replace('<head>', `<head>\n${csp}`)
     .replace('@@TITLE@@', () => escapeHtml(title))
+    .replace('<script id="md-source"', () => `${resourceScript}<script id="md-source"`)
     .replace('@@MD@@', () => escapeMarkdown(markdown))
     .replace('@@TEMPLATE_BASE64@@', Buffer.from(template, 'utf8').toString('base64'))
     .replace('<!--@@VIEWER@@-->', () => viewer);
@@ -40,7 +43,8 @@ function activate(context) {
       const webview = webviewPanel.webview;
       webview.options = {enableScripts: true, retainContextWhenHidden: true};
       webviewPanel.webview.html = buildWebviewHtml(template, document.getText(), {
-        fileName: path.basename(document.uri.fsPath), viewerCode, cspSource: webview.cspSource
+        fileName: path.basename(document.uri.fsPath), viewerCode, cspSource: webview.cspSource,
+        resourceBase: webview.asWebviewUri(vscode.Uri.joinPath(document.uri, '..')).toString()
       });
 
       let suppressContent = null;

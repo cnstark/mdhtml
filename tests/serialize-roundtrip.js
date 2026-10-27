@@ -12,7 +12,7 @@ try {
   const output = path.join(dir, 'source.md.html');
   const saved = path.join(dir, 'saved.md.html');
   const markdown = '# 中文 & <标题> "引号"\n\n原样保留 </script>、<\\/script>、\\\\ 和 emoji 🌿\n';
-  const notes = [{text: '批注 </script> & "引号" \\ 🌿'}];
+  const notes = [{id:'urn:uuid:123e4567-e89b-42d3-a456-426614174000', type:'Annotation', created:'2026-10-27T12:00:00.000Z', body:{type:'TextualBody', value:'**批注** </script> & "引号" \\ 🌿', format:'text/markdown'}, target:{selector:[{type:'TextQuoteSelector', exact:'中文', prefix:'', suffix:' & <标题> "引号"'}, {type:'TextPositionSelector', start:0, end:2}]}}];
   fs.writeFileSync(input, markdown);
   execFileSync('python3', [path.join(root, 'mdhtml'), 'build', input, '-o', output]);
   const built = fs.readFileSync(output, 'utf8');
@@ -28,6 +28,7 @@ try {
   const extracted = execFileSync('python3', [path.join(root, 'mdhtml'), 'extract', saved], {encoding: 'utf8'});
   assert.equal(extracted, markdown);
   assert.deepEqual(JSON.parse(html.match(/<script id="annotations" type="application\/json">(.*?)<\/script>/s)[1]), notes);
+  assert.deepEqual(JSON.parse(fs.readFileSync(saved, 'utf8').match(/<script id="annotations" type="application\/json">(.*?)<\/script>/s)[1]), notes);
   execFileSync('python3', [path.join(root, 'mdhtml'), 'check', saved]);
   console.log('serialize → CLI extract/check: OK');
 } finally {

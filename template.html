@@ -17,13 +17,15 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
   Current colors taken from GitHub's CSS
 */.hljs{color:#24292e;background:#fff}.hljs-doctag,.hljs-keyword,.hljs-meta .hljs-keyword,.hljs-template-tag,.hljs-template-variable,.hljs-type,.hljs-variable.language_{color:#d73a49}.hljs-title,.hljs-title.class_,.hljs-title.class_.inherited__,.hljs-title.function_{color:#6f42c1}.hljs-attr,.hljs-attribute,.hljs-literal,.hljs-meta,.hljs-number,.hljs-operator,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-variable{color:#005cc5}.hljs-meta .hljs-string,.hljs-regexp,.hljs-string{color:#032f62}.hljs-built_in,.hljs-symbol{color:#e36209}.hljs-code,.hljs-comment,.hljs-formula{color:#6a737d}.hljs-name,.hljs-quote,.hljs-selector-pseudo,.hljs-selector-tag{color:#22863a}.hljs-subst{color:#24292e}.hljs-section{color:#005cc5;font-weight:700}.hljs-bullet{color:#735c0f}.hljs-emphasis{color:#24292e;font-style:italic}.hljs-strong{color:#24292e;font-weight:700}.hljs-addition{color:#22863a;background-color:#f0fff4}.hljs-deletion{color:#b31d28;background-color:#ffeef0}
 :root{color-scheme:light;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#263238;background:#f7f8fa}*{box-sizing:border-box}body{margin:0}button{font:inherit;cursor:pointer}header{min-height:56px;display:flex;align-items:center;gap:12px;padding:0 20px;background:#fff;border-bottom:1px solid #e3e7eb;position:sticky;top:0;z-index:10}header strong{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}header button,.toolbar button{border:1px solid #d3dbe2;border-radius:7px;background:#fff;padding:6px 11px;color:#344551}header button:hover,.toolbar button:hover{background:#edf4f7}header button:disabled{opacity:.6;cursor:default}#save-state{display:flex;align-items:center;gap:8px;font-size:12px;color:#6b7c86;min-width:0}#connection-status{display:inline-block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dirty-indicator{display:none;white-space:nowrap;color:#aa6220}#dirty-indicator::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#d88927;margin-right:5px;vertical-align:1px}body.dirty #dirty-indicator{display:inline}#status{font-size:12px;color:#38677e;white-space:nowrap}#status.error{color:#b43232}.layout{display:flex;min-height:calc(100vh - 56px)}#outline{width:250px;flex:none;border-right:1px solid #e3e7eb;background:#fff;padding:20px 12px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto}#outline h2{margin:0 8px 12px;font-size:12px;color:#76838a;letter-spacing:.08em}#outline a{display:block;text-decoration:none;color:#586871;padding:7px 10px;border-radius:6px;font-size:13px;line-height:1.4}#outline a[data-level="2"]{padding-left:22px}#outline a[data-level="3"]{padding-left:34px}#outline a:hover,#outline a.active{color:#175e87;background:#eaf4fa}#outline.empty{display:none}body.outline-closed #outline{display:none}#main{min-width:0;flex:1}#viewer{max-width:880px;margin:0 auto;padding:32px 44px 100px}.markdown-body{line-height:1.75;overflow-wrap:anywhere;font-size:16px}.markdown-body img{max-width:100%;height:auto}.markdown-body pre{overflow:auto;border-radius:8px}.markdown-body table{display:block;overflow-x:auto}.markdown-body blockquote{color:#63717a}.markdown-body h1,.markdown-body h2,.markdown-body h3{scroll-margin-top:76px}.markdown-body .mxgraph{min-height:100px;overflow:auto}.drawio-missing{padding:16px;border:1px solid #e2bc78;background:#fff7e8;border-radius:7px;color:#76531e}#editor{display:none;height:calc(100vh - 56px)}body.editing #editor{display:grid;grid-template-columns:minmax(280px,1fr) minmax(280px,1fr)}body.editing #viewer{display:none}#source-editor{width:100%;height:100%;resize:none;border:0;border-right:1px solid #dfe5e9;outline:0;background:#fdfefe;padding:24px;font:14px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2}#preview{overflow:auto;padding:24px 36px;background:#fff}.toolbar{display:flex;gap:8px}@media(max-width:800px){#outline{width:190px}#viewer{padding:24px}body.editing #editor{grid-template-columns:1fr;grid-template-rows:50% 50%}#source-editor{border-right:0;border-bottom:1px solid #dfe5e9}}@media(max-width:600px){#outline{display:none}header{padding:8px 10px;flex-wrap:wrap}header strong{flex-basis:calc(100% - 48px)}#save-state{order:3;flex:1}#status{order:4}.toolbar{order:2}}
+.annotation-mark{background:#ffe59a;border-radius:2px;cursor:pointer;scroll-margin-top:80px}.annotation-mark:hover{background:#ffd16a}.annotation-mark.flash{animation:annotation-flash 1.2s ease 2}@keyframes annotation-flash{50%{background:#f59e0b}}#notes-panel{width:300px;flex:none;background:#fff;border-left:1px solid #e3e7eb;padding:18px 14px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto}#notes-panel h2{font-size:15px;margin:0 0 12px}#notes-panel h3{font-size:13px;color:#925426;margin:20px 0 8px}.note-card{border:1px solid #e4e7e9;border-radius:8px;padding:10px;margin-bottom:10px;cursor:pointer}.note-card:hover{border-color:#e9b94a}.note-quote{font-size:12px;color:#66757d;overflow-wrap:anywhere}.note-body{font-size:14px;overflow-wrap:anywhere}.note-body p{margin:6px 0}.note-time{font-size:11px;color:#7b8790}.note-actions{display:flex;gap:6px;margin-top:8px}.note-actions button,#note-form button,#selection-action{border:1px solid #cbd5dc;border-radius:5px;background:white;padding:4px 8px;font-size:12px}#selection-action{position:fixed;z-index:30;display:none;box-shadow:0 2px 10px #0002}#note-form{position:fixed;z-index:31;display:none;width:min(330px,calc(100vw - 24px));padding:12px;background:white;border:1px solid #d8e0e5;border-radius:8px;box-shadow:0 4px 22px #0002}#note-form textarea{display:block;width:100%;min-height:90px;resize:vertical;margin:8px 0;font:inherit}#note-form-actions{display:flex;justify-content:flex-end;gap:8px}.note-empty{font-size:13px;color:#829099}body.editing #notes-panel{display:none}@media(max-width:1050px){.layout{flex-wrap:wrap}#notes-panel{position:static;width:100%;height:auto;border-left:0;border-top:1px solid #e3e7eb}body.editing #main{width:100%}}@media(max-width:600px){#notes-panel{padding:16px}#notes-panel.collapsed #notes-content{display:none}}
 </style>
 </head>
 <body>
 <script id="md-source" type="text/markdown">@@MD@@</script>
 <script id="annotations" type="application/json">@@ANNOTATIONS@@</script>
 <header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div class="toolbar"><button id="edit-toggle" type="button">编辑</button><button id="authorize-save" type="button" hidden>授权原地保存</button><button id="save" type="button">下载保存</button></div></header>
-<div class="layout"><nav id="outline" aria-label="文档大纲"><h2>大纲</h2><div id="outline-links"></div></nav><main id="main"><article id="viewer" class="markdown-body"></article><div id="editor"><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码"></textarea><article id="preview" class="markdown-body"></article></div></main></div>
+<div class="layout"><nav id="outline" aria-label="文档大纲"><h2>大纲</h2><div id="outline-links"></div></nav><main id="main"><article id="viewer" class="markdown-body"></article><div id="editor"><textarea id="source-editor" spellcheck="false" aria-label="Markdown 源码"></textarea><article id="preview" class="markdown-body"></article></div></main><aside id="notes-panel" aria-label="批注"><h2><button id="notes-toggle" type="button" aria-expanded="true">批注</button> <span id="notes-count"></span></h2><div id="notes-content"></div></aside></div>
+<button id="selection-action" type="button">批注</button><div id="note-form" role="dialog" aria-label="编辑批注"><strong id="note-form-title">新建批注</strong><textarea id="note-input" aria-label="批注内容，支持 Markdown"></textarea><div id="note-form-actions"><button id="note-cancel" type="button">取消</button><button id="note-confirm" type="button">确定</button></div></div>
 <script id="marked-library">/**
  * marked v12.0.2 - a markdown parser
  * Copyright (c) 2011-2024, Christopher Jeffrey. (MIT Licensed)
@@ -1253,6 +1255,55 @@ return He}()
 ;"object"==typeof exports&&"undefined"!=typeof module&&(module.exports=hljs);</script>
 <!--@@VIEWER@@-->
 <script id="mdhtml-app">
+// 锚点偏移使用 JavaScript 字符串的 UTF-16 单位，与 DOM Range 的文本偏移一致。
+const Anchors = (() => {
+  function selectors(note) {
+    const list = note && note.target && note.target.selector;
+    return {
+      quote: Array.isArray(list) ? list.find(item => item.type === "TextQuoteSelector") : null,
+      position: Array.isArray(list) ? list.find(item => item.type === "TextPositionSelector") : null
+    };
+  }
+  function contextScore(text, start, exact, quote) {
+    const before = text.slice(0, start), after = text.slice(start + exact.length);
+    const prefix = quote.prefix || "", suffix = quote.suffix || "";
+    let score = 0;
+    for (let i = 1; i <= prefix.length && i <= before.length; i++) {
+      if (prefix[prefix.length - i] !== before[before.length - i]) break;
+      score++;
+    }
+    for (let i = 0; i < suffix.length && i < after.length; i++) {
+      if (suffix[i] !== after[i]) break;
+      score++;
+    }
+    return score;
+  }
+  function resolve(text, note) {
+    const {quote, position} = selectors(note);
+    const exact = quote && quote.exact;
+    if (typeof exact !== "string" || !exact.length) return null;
+    const candidates = [];
+    for (let at = text.indexOf(exact); at !== -1; at = text.indexOf(exact, at + 1)) candidates.push(at);
+    if (candidates.length) {
+      candidates.sort((a, b) => contextScore(text, b, exact, quote) - contextScore(text, a, exact, quote)
+        || Math.abs(a - (position?.start ?? a)) - Math.abs(b - (position?.start ?? b)) || a - b);
+      return {start:candidates[0], end:candidates[0] + exact.length};
+    }
+    if (!position || !Number.isInteger(position.start)) return null;
+    const start = position.start;
+    if (text.slice(start, position.end) === exact) return {start, end:start + exact.length};
+    const lo = Math.max(0, start - 64), hi = Math.min(text.length, start + 64 + exact.length);
+    const nearby = text.slice(lo, hi).indexOf(exact);
+    return nearby < 0 ? null : {start:lo + nearby, end:lo + nearby + exact.length};
+  }
+  function makeSelector(text, start, end) {
+    return [
+      {type:"TextQuoteSelector", exact:text.slice(start, end), prefix:text.slice(Math.max(0, start - 32), start), suffix:text.slice(end, end + 32)},
+      {type:"TextPositionSelector", start, end}
+    ];
+  }
+  return {resolve, makeSelector};
+})();
 /* 模板的 Base64 副本由 CLI 从 template.html 注入，保存时据此重建完整文件。 */
 const TEMPLATE_BASE64 = "@@TEMPLATE_BASE64@@";
 const TEMPLATE = new TextDecoder().decode(Uint8Array.from(atob(TEMPLATE_BASE64), c => c.charCodeAt(0)));
@@ -1274,6 +1325,14 @@ let feedbackTimer;
 const canSaveInPlace = typeof window.showOpenFilePicker === "function";
 const saveButton = document.getElementById("save");
 const authorizeButton = document.getElementById("authorize-save");
+const notesContent = document.getElementById("notes-content");
+const selectionAction = document.getElementById("selection-action");
+const noteForm = document.getElementById("note-form");
+const noteInput = document.getElementById("note-input");
+let pendingSelection = null;
+let editingNote = null;
+let reattachingNote = null;
+let resolvedNotes = new Map();
 
 // 先加倍所有反斜杠，再转义结束标签；解码按相反顺序处理，保留原文中的 <\/script。
 function escapeMarkdown(value) {
@@ -1434,11 +1493,124 @@ function updateOutline() {
   headings.forEach((heading, index) => { if (heading.getBoundingClientRect().top <= 100) current = index; });
   document.querySelectorAll("#outline-links a").forEach((link, index) => link.classList.toggle("active", index === current));
 }
+function textNodes(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  let node, offset = 0;
+  while ((node = walker.nextNode())) {
+    const end = offset + node.textContent.length;
+    nodes.push({node, start:offset, end});
+    offset = end;
+  }
+  return {nodes, text:nodes.map(part => part.node.textContent).join("")};
+}
+function selectionOffsets(range) {
+  const before = document.createRange();
+  before.selectNodeContents(viewer);
+  before.setEnd(range.startContainer, range.startOffset);
+  const through = document.createRange();
+  through.selectNodeContents(viewer);
+  through.setEnd(range.endContainer, range.endOffset);
+  const start = before.toString().length, end = through.toString().length;
+  return end > start ? {start, end} : null;
+}
+function highlightInterval(parts, interval, ids) {
+  for (const part of parts.nodes) {
+    const begin = Math.max(interval.start, part.start), finish = Math.min(interval.end, part.end);
+    if (finish <= begin) continue;
+    const range = document.createRange();
+    range.setStart(part.node, begin - part.start);
+    range.setEnd(part.node, finish - part.start);
+    const mark = document.createElement("mark");
+    mark.className = "annotation-mark";
+    mark.dataset.noteIds = ids.join(" ");
+    mark.title = ids.map(id => annotations.find(note => note.id === id)?.body?.value || "").join("\n—\n").slice(0, 240);
+    range.surroundContents(mark);
+  }
+}
+function reanchor() {
+  const parts = textNodes(viewer);
+  resolvedNotes = new Map();
+  for (const note of annotations) resolvedNotes.set(note.id, Anchors.resolve(parts.text, note));
+  const groups = new Map();
+  for (const [id, interval] of resolvedNotes) {
+    if (!interval) continue;
+    const key = `${interval.start}:${interval.end}`;
+    if (!groups.has(key)) groups.set(key, {interval, ids:[]});
+    groups.get(key).ids.push(id);
+  }
+  const ordered = [...groups.values()].sort((a, b) => b.interval.start - a.interval.start);
+  const drawn = [];
+  for (const group of ordered) {
+    if (drawn.some(old => group.interval.start < old.end && old.start < group.interval.end)) {
+      for (const id of group.ids) resolvedNotes.set(id, null);
+      continue;
+    }
+    highlightInterval(parts, group.interval, group.ids);
+    drawn.push(group.interval);
+  }
+  renderNotes();
+}
+function noteCard(note, orphaned) {
+  const card = document.createElement("div");
+  card.className = "note-card";
+  card.dataset.noteId = note.id;
+  const quote = document.createElement("div");
+  quote.className = "note-quote";
+  quote.textContent = `“${(note.target?.selector?.find(s => s.type === "TextQuoteSelector")?.exact || "").slice(0, 100)}”`;
+  const body = document.createElement("div");
+  body.className = "note-body";
+  body.innerHTML = DOMPurify.sanitize(marked.parse(note.body?.value || ""));
+  const time = document.createElement("div");
+  time.className = "note-time";
+  time.textContent = new Date(note.created).toLocaleString("zh-CN");
+  const actions = document.createElement("div");
+  actions.className = "note-actions";
+  for (const [action, label] of orphaned ? [["reattach", "重新挂载"], ["delete", "删除"]] : [["edit", "编辑"], ["delete", "删除"]]) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.action = action;
+    button.textContent = label;
+    actions.append(button);
+  }
+  card.append(quote, body, time, actions);
+  return card;
+}
+function renderNotes() {
+  notesContent.replaceChildren();
+  document.getElementById("notes-count").textContent = `(${annotations.length})`;
+  if (!annotations.length) {
+    const empty = document.createElement("p");
+    empty.className = "note-empty";
+    empty.textContent = "划选正文文字可添加批注。";
+    notesContent.append(empty);
+    return;
+  }
+  const attached = annotations.filter(note => resolvedNotes.get(note.id));
+  const orphaned = annotations.filter(note => !resolvedNotes.get(note.id));
+  for (const note of attached) notesContent.append(noteCard(note, false));
+  if (orphaned.length) {
+    const heading = document.createElement("h3");
+    heading.textContent = `失锚 (${orphaned.length})`;
+    notesContent.append(heading);
+    for (const note of orphaned) notesContent.append(noteCard(note, true));
+  }
+}
+function placePopup(element, rect) {
+  element.style.left = `${Math.max(8, Math.min(window.innerWidth - 340, rect.left))}px`;
+  element.style.top = `${Math.max(8, Math.min(window.innerHeight - 150, rect.bottom + 8))}px`;
+}
+function closeNoteForm() {
+  noteForm.style.display = "none";
+  editingNote = null;
+  pendingSelection = null;
+}
 function renderView() {
   renderMarkdown(markdown, viewer);
   document.getElementById("doc-title").textContent = safeTitle(markdown);
   document.title = safeTitle(markdown);
   buildOutline();
+  reanchor();
 }
 function setEditing(editing) {
   document.body.classList.toggle("editing", editing);
@@ -1462,6 +1634,89 @@ authorizeButton.addEventListener("click", async () => {
 document.getElementById("outline-toggle").addEventListener("click", () => {
   const closed = document.body.classList.toggle("outline-closed");
   document.getElementById("outline-toggle").setAttribute("aria-expanded", String(!closed));
+});
+document.getElementById("notes-toggle").addEventListener("click", () => {
+  const closed = document.getElementById("notes-panel").classList.toggle("collapsed");
+  document.getElementById("notes-toggle").setAttribute("aria-expanded", String(!closed));
+});
+viewer.addEventListener("pointerup", () => {
+  if (document.body.classList.contains("editing")) return;
+  setTimeout(() => {
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed || !selection.rangeCount) return;
+    const range = selection.getRangeAt(0);
+    if (!viewer.contains(range.commonAncestorContainer)) return;
+    const interval = selectionOffsets(range);
+    if (!interval) return;
+    const text = textNodes(viewer).text;
+    if (!text.slice(interval.start, interval.end).trim()) return;
+    pendingSelection = {interval, text};
+    placePopup(selectionAction, range.getBoundingClientRect());
+    selectionAction.style.display = "block";
+    selectionAction.textContent = reattachingNote ? "重新挂载" : "批注";
+  }, 0);
+});
+selectionAction.addEventListener("click", () => {
+  const actionRect = selectionAction.getBoundingClientRect();
+  selectionAction.style.display = "none";
+  if (!pendingSelection) return;
+  const {interval} = pendingSelection;
+  const overlaps = [...resolvedNotes].some(([id, old]) => id !== reattachingNote && old && interval.start < old.end && old.start < interval.end && (interval.start !== old.start || interval.end !== old.end));
+  if (overlaps) { setStatus("选区与已有批注部分重叠，请重新划选。", true); pendingSelection = null; return; }
+  if (reattachingNote) {
+    const note = annotations.find(item => item.id === reattachingNote);
+    if (note) { note.target.selector = Anchors.makeSelector(pendingSelection.text, interval.start, interval.end); updateSaveState(); renderView(); setStatus("批注已重新挂载"); }
+    reattachingNote = null;
+    pendingSelection = null;
+    window.getSelection()?.removeAllRanges();
+    return;
+  }
+  editingNote = null;
+  noteInput.value = "";
+  document.getElementById("note-form-title").textContent = "新建批注";
+  placePopup(noteForm, actionRect);
+  noteForm.style.display = "block";
+  noteInput.focus();
+});
+document.getElementById("note-cancel").addEventListener("click", closeNoteForm);
+document.getElementById("note-confirm").addEventListener("click", () => {
+  const value = noteInput.value.trim();
+  if (!value) { setStatus("请输入批注内容。", true); noteInput.focus(); return; }
+  if (editingNote) {
+    editingNote.body.value = value;
+  } else if (pendingSelection) {
+    const {interval, text} = pendingSelection;
+    annotations.push({id:`urn:uuid:${crypto.randomUUID()}`, type:"Annotation", created:new Date().toISOString(), body:{type:"TextualBody", value, format:"text/markdown"}, target:{selector:Anchors.makeSelector(text, interval.start, interval.end)}});
+  }
+  closeNoteForm();
+  window.getSelection()?.removeAllRanges();
+  renderView();
+  updateSaveState();
+});
+notesContent.addEventListener("click", event => {
+  const card = event.target.closest(".note-card");
+  if (!card) return;
+  const note = annotations.find(item => item.id === card.dataset.noteId);
+  if (!note) return;
+  const action = event.target.closest("button")?.dataset.action;
+  if (action === "delete") {
+    annotations = annotations.filter(item => item.id !== note.id);
+    renderView(); updateSaveState();
+  } else if (action === "edit") {
+    editingNote = note; pendingSelection = null;
+    noteInput.value = note.body.value;
+    document.getElementById("note-form-title").textContent = "编辑批注";
+    placePopup(noteForm, card.getBoundingClientRect());
+    noteForm.style.display = "block"; noteInput.focus();
+  } else if (action === "reattach") {
+    reattachingNote = note.id;
+    selectionAction.style.display = "none";
+    setStatus("请重新划选正文文字，再点击“重新挂载”。");
+    viewer.scrollIntoView({behavior:"smooth", block:"start"});
+  } else {
+    const mark = [...viewer.querySelectorAll(".annotation-mark")].find(item => item.dataset.noteIds.split(" ").includes(note.id));
+    if (mark) { mark.scrollIntoView({behavior:"smooth", block:"center"}); mark.classList.remove("flash"); void mark.offsetWidth; mark.classList.add("flash"); }
+  }
 });
 sourceEditor.addEventListener("input", () => {
   updateSaveState();

@@ -108,16 +108,70 @@ async function run() {
     markdown, sourceEditor: {value: markdown},
     document: {body: {classList: {contains: () => true}}},
     vscodeHost: {postMessage: message => messages.push(message)},
-    pendingHostSaves: new Map(), hostSaveId: 0
+    pendingHostSaves: new Map(), hostSaveId: 0, savedMarkdown: markdown,
+    hostDocumentUri: 'file:///test.md'
   };
   vm.createContext(saveContext);
   vm.runInContext(app.slice(app.indexOf('function currentMarkdown('), app.indexOf('function updateSaveState(')) + '\n' +
     app.slice(app.indexOf('async function persistHtml('), app.indexOf('async function saveDocument(')), saveContext);
-  const pending = saveContext.persistHtml('', true);
+  const pending = saveContext.persistHtml('');
   assert.equal(messages[0].markdown, markdown);
-  assert.equal(messages[0].saveToDisk, true);
+  assert.equal(messages[0].baseMarkdown, markdown);
+  assert.equal(messages[0].documentUri, 'file:///test.md');
+  assert.equal('saveToDisk' in messages[0], false);
   saveContext.pendingHostSaves.get(messages[0].id).resolve(true);
   assert.equal(await pending, true);
+
+  const hostMessages = [];
+  const timers = [];
+  let messageHandler;
+  let renders = 0;
+  const pathParts = {prefix: {textContent: ''}, name: {textContent: ''}};
+  const hostContext = {
+    window: {addEventListener(type, handler) { if (type === 'message') messageHandler = handler; }},
+    vscodeHost: {postMessage: value => hostMessages.push(value)},
+    pendingHostSaves: new Map(),
+    document: {body: {classList: {contains: () => false}}, getElementById: id =>
+      id === 'path-prefix' ? pathParts.prefix : pathParts.name},
+    documentPath: {title: ''}, sourceEditor: {value: markdown},
+    markdown, savedMarkdown: markdown, hostDocumentUri: 'file:///old.md', hostRenderTimer: null,
+    currentMarkdown: () => hostContext.markdown,
+    syncAnnotationsFromMarkdown() {}, renderView() { renders++; },
+    updateSaveState() {}, setStatus() {},
+    clearTimeout() {}, setTimeout(fn, delay) { timers.push({fn, delay}); return timers.length; }
+  };
+  vm.createContext(hostContext);
+  vm.runInContext(app.slice(app.indexOf('if (vscodeHost) window.addEventListener("message"'), app.indexOf('const outlineToggle =')), hostContext);
+  messageHandler({data: {type:'setContent', markdown:'# New\n', documentUri:'file:///new.md', resourceBase:'vscode-webview://new/'}});
+  assert.equal(hostContext.markdown, '# New\n');
+  assert.equal(hostContext.window.mdhtmlResourceBase, 'vscode-webview://new/');
+  assert.equal(pathParts.name.textContent, 'new.md');
+  assert.equal(timers.at(-1).delay, 300);
+  assert.equal(renders, 0);
+  timers.at(-1).fn();
+  assert.equal(renders, 1);
+  assert.equal(hostMessages.at(-1).type, 'contentApplied');
+  hostContext.markdown = '# Local note\n';
+  messageHandler({data: {type:'setContent', markdown:'# External\n', documentUri:'file:///another.md'}});
+  assert.equal(hostContext.markdown, '# Local note\n');
+  assert.equal(hostMessages.at(-1).type, 'contentDeferred');
+
+  const annotationTimers = [];
+  const annotationContext = {
+    invalidAnnotationBlock: false, annotations: [], markdown: '# Note\n',
+    sourceEditor: {value: ''}, vscodeHost: {}, hostSaveFailed: true, hostSaveTimer: null,
+    writeAnnotations: value => value + '<!-- note -->',
+    updateSaveState() {}, clearTimeout() {},
+    setTimeout(fn, delay) { annotationTimers.push({fn, delay}); return 1; },
+    saveDocument() { annotationTimers.push({saved: true}); }
+  };
+  vm.createContext(annotationContext);
+  vm.runInContext(app.slice(app.indexOf('function syncMarkdownFromAnnotations()'), app.indexOf('function serialize(')), annotationContext);
+  assert.equal(annotationContext.syncMarkdownFromAnnotations(), true);
+  assert.equal(annotationContext.sourceEditor.value, '# Note\n<!-- note -->');
+  assert.equal(annotationTimers[0].delay, 100);
+  annotationTimers[0].fn();
+  assert.equal(annotationTimers[1].saved, true);
   console.log('VSCode host render and save roundtrip: OK');
 }
 run().catch(error => { console.error(error); process.exitCode = 1; });

@@ -43,6 +43,7 @@ pre code.hljs{display:block;overflow-x:auto;padding:1em}code.hljs{padding:3px 5p
 :root[data-theme="dark"] .note-turn+.note-turn,:root[data-theme="dark"] .note-reply{border-top-color:#455560}:root[data-theme="dark"] .note-reply input,:root[data-theme="dark"] .note-reply button{background:#182127;border-color:#455560;color:#d6dee4}:root[data-theme="dark"] .note-reply button:hover{background:#34444e}
 
 :root[data-theme="dark"] .hljs{background:#202b33;color:#d6dee4}:root[data-theme="dark"] .hljs-keyword,:root[data-theme="dark"] .hljs-doctag,:root[data-theme="dark"] .hljs-type,:root[data-theme="dark"] .hljs-template-tag,:root[data-theme="dark"] .hljs-variable.language_{color:#ef9ca8}:root[data-theme="dark"] .hljs-title,:root[data-theme="dark"] .hljs-title.class_,:root[data-theme="dark"] .hljs-title.function_{color:#c7a7ee}:root[data-theme="dark"] .hljs-attr,:root[data-theme="dark"] .hljs-attribute,:root[data-theme="dark"] .hljs-literal,:root[data-theme="dark"] .hljs-meta,:root[data-theme="dark"] .hljs-number,:root[data-theme="dark"] .hljs-selector-attr,:root[data-theme="dark"] .hljs-selector-class,:root[data-theme="dark"] .hljs-selector-id,:root[data-theme="dark"] .hljs-variable,:root[data-theme="dark"] .hljs-section{color:#8fbcf2}:root[data-theme="dark"] .hljs-string,:root[data-theme="dark"] .hljs-regexp,:root[data-theme="dark"] .hljs-meta .hljs-string{color:#b2d79a}:root[data-theme="dark"] .hljs-built_in,:root[data-theme="dark"] .hljs-symbol,:root[data-theme="dark"] .hljs-bullet{color:#e6b782}:root[data-theme="dark"] .hljs-comment,:root[data-theme="dark"] .hljs-code,:root[data-theme="dark"] .hljs-formula{color:#94a3ad}:root[data-theme="dark"] .hljs-name,:root[data-theme="dark"] .hljs-quote,:root[data-theme="dark"] .hljs-selector-tag{color:#9bd0b1}:root[data-theme="dark"] .hljs-subst,:root[data-theme="dark"] .hljs-strong,:root[data-theme="dark"] .hljs-emphasis{color:#d6dee4}:root[data-theme="dark"] .hljs-addition{color:#9bd0b1;background:#24392f}:root[data-theme="dark"] .hljs-deletion{color:#ef9ca8;background:#422e35}
+body.vscode-host #edit-toggle,body.vscode-host #export-md,body.vscode-host #editor{display:none}
 </style>
 </head>
 <body>
@@ -1450,6 +1451,11 @@ let savedMarkdown = originalMarkdown;
 let saving = false;
 let feedbackTimer;
 const vscodeHost = typeof window.acquireVsCodeApi === "function" ? window.acquireVsCodeApi() : null;
+let hostDocumentUri = window.mdhtmlDocumentUri || "";
+let hostRenderTimer;
+let hostSaveTimer;
+let hostSaveFailed = false;
+if (vscodeHost) document.body.classList.add("vscode-host");
 let hostSaveId = 0;
 const pendingHostSaves = new Map();
 const canSaveInPlace = typeof window.showOpenFilePicker === "function";
@@ -1564,6 +1570,11 @@ function syncMarkdownFromAnnotations() {
   markdown = writeAnnotations(markdown, annotations);
   sourceEditor.value = markdown;
   updateSaveState();
+  if (vscodeHost) {
+    hostSaveFailed = false;
+    clearTimeout(hostSaveTimer);
+    hostSaveTimer = setTimeout(() => saveDocument(), 100);
+  }
   return true;
 }
 function serialize(value) {
@@ -1595,7 +1606,7 @@ function updateSaveState() {
     : "浏览器不支持原地保存；下载后请手动覆盖原文件";
   connection.title = connection.textContent;
   saveButton.disabled = saving || (!vscodeHost && canSaveInPlace && restoringHandle);
-  saveButton.textContent = vscodeHost || canSaveInPlace ? "保存" : "下载保存";
+  saveButton.textContent = vscodeHost ? "更新文档" : canSaveInPlace ? "保存" : "下载保存";
 }
 function setStatus(message, error = false) {
   const status = document.getElementById("status");
@@ -1685,12 +1696,12 @@ async function authorizeSave() {
   setStatus("原地保存已授权");
   return fileHandle;
 }
-async function persistHtml(html, saveToDisk = false) {
+async function persistHtml(html) {
   if (vscodeHost) {
     const id = ++hostSaveId;
     return new Promise((resolve, reject) => {
       pendingHostSaves.set(id, {resolve, reject});
-      vscodeHost.postMessage({type:"save", markdown:currentMarkdown(), id, saveToDisk});
+      vscodeHost.postMessage({type:"save", markdown:currentMarkdown(), baseMarkdown:savedMarkdown, documentUri:hostDocumentUri, id});
     });
   }
   if (!canSaveInPlace) { downloadHtml(html); return false; }
@@ -1705,9 +1716,10 @@ async function persistHtml(html, saveToDisk = false) {
   }
   return true;
 }
-async function saveDocument(saveToDisk = false) {
+async function saveDocument() {
   if (saving || restoringHandle) return;
   saving = true;
+  hostSaveFailed = false;
   saveButton.disabled = true;
   try {
     // 编辑器可直接修改末尾注释块；保存前重新解析，保证内存批注与源码一致。
@@ -1719,11 +1731,12 @@ async function saveDocument(saveToDisk = false) {
       sourceEditor.value = value;
       if (document.body.classList.contains("editing")) updateHighlight();
     }
-    const savedInPlace = await persistHtml(vscodeHost ? "" : serialize(value), saveToDisk);
-    markdown = value;
+    const savedInPlace = await persistHtml(vscodeHost ? "" : serialize(value));
+    if (currentMarkdown() === value) markdown = value;
     if (savedInPlace) {
       savedMarkdown = value;
-      setStatus("已保存");
+      setStatus(vscodeHost ? "已更新到 VSCode 文档" : "已保存");
+      if (vscodeHost) vscodeHost.postMessage({type:"contentReady"});
     } else {
       setStatus("已下载 HTML；请手动覆盖原文件");
     }
@@ -1732,6 +1745,7 @@ async function saveDocument(saveToDisk = false) {
       alert(vscodeHost ? "保存后重新打开以启用 drawio 渲染" : "包含 drawio 需重新 build 注入 viewer。请用 mdhtml extract 提取 Markdown，再运行 mdhtml build。");
     }
   } catch (error) {
+    hostSaveFailed = true;
     if (error.name !== "AbortError") {
       const message = `保存失败：${error.message || error}`;
       setStatus(message, true);
@@ -1740,6 +1754,10 @@ async function saveDocument(saveToDisk = false) {
   } finally {
     saving = false;
     updateSaveState();
+    if (vscodeHost && !hostSaveFailed && currentMarkdown() !== savedMarkdown) {
+      clearTimeout(hostSaveTimer);
+      hostSaveTimer = setTimeout(() => saveDocument(), 100);
+    }
   }
 }
 function renderMarkdown(value, target) {
@@ -2186,7 +2204,20 @@ if (vscodeHost) window.addEventListener("message", event => {
     if (message.ok) pending.resolve(true);
     else pending.reject(new Error(message.error || "无法更新 Markdown 文档"));
   } else if (message.type === "setContent" && typeof message.markdown === "string") {
-    if (currentMarkdown() !== savedMarkdown) { setStatus("文件已被外部修改", true); return; }
+    if (currentMarkdown() !== savedMarkdown) {
+      setStatus("批注尚未更新到 VSCode 文档，请检查后保存", true);
+      if (message.documentUri && message.documentUri !== hostDocumentUri) vscodeHost.postMessage({type:"contentDeferred"});
+      return;
+    }
+    const switched = !!message.documentUri && message.documentUri !== hostDocumentUri;
+    if (switched) {
+      hostDocumentUri = message.documentUri;
+      window.mdhtmlDocumentUri = hostDocumentUri;
+      window.mdhtmlResourceBase = message.resourceBase;
+      document.getElementById("path-prefix").textContent = "";
+      document.getElementById("path-name").textContent = decodeURIComponent(hostDocumentUri.split("/").pop() || "");
+      documentPath.title = hostDocumentUri;
+    }
     markdown = message.markdown;
     savedMarkdown = markdown;
     sourceEditor.value = markdown;
@@ -2196,8 +2227,10 @@ if (vscodeHost) window.addEventListener("message", event => {
       updateHighlight();
       renderMarkdown(markdown, preview);
     }
-    renderView();
+    clearTimeout(hostRenderTimer);
+    hostRenderTimer = setTimeout(renderView, 300);
     updateSaveState();
+    if (switched) vscodeHost.postMessage({type:"contentApplied", documentUri:hostDocumentUri});
   }
 });
 const outlineToggle = document.getElementById("outline-toggle");
@@ -2425,8 +2458,8 @@ document.addEventListener("keydown", event => {
   if (!(event.metaKey || event.ctrlKey)) return;
   const key = event.key.toLowerCase();
   if (key === "f") { event.preventDefault(); openSearch(); return; }
-  if (key === "e") { event.preventDefault(); setEditing(!document.body.classList.contains("editing")); }
-  if (key === "s") { event.preventDefault(); saveDocument(!!vscodeHost); }
+  if (key === "e" && !vscodeHost) { event.preventDefault(); setEditing(!document.body.classList.contains("editing")); }
+  if (key === "s" && !vscodeHost) { event.preventDefault(); saveDocument(); }
 });
 window.addEventListener("scroll", updateOutline, {passive:true});
 window.addEventListener("beforeunload", event => {

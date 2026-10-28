@@ -66,4 +66,4 @@ else
 fi
 echo "请确认产物后手动运行："
 echo "  git push origin $tag"
-echo "  gh release create $tag $archive $vsix"
+echo "推送 tag 后 GitHub Actions 会自动重新构建并发布 Release。"

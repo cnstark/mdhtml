@@ -50,6 +50,8 @@ node tests/markdown-highlight.js       # 语法高亮测试
 
 ## 发布
 
-维护者在干净的工作区运行 `scripts/release.sh x.y.z`。脚本会运行全部 JavaScript 测试和 examples 自检，生成 `dist/mdhtml-skill-vx.y.z.tar.gz`，并在本地创建 `vx.y.z` tag；确认产物后按脚本提示手动推送 tag、创建 GitHub Release。
+维护者在干净的工作区运行 `scripts/release.sh x.y.z`。脚本会运行全部 JavaScript 测试和 examples 自检，生成 `dist/mdhtml-skill-vx.y.z.tar.gz` 和 `dist/mdhtml-vscode-vx.y.z.vsix`，并在本地创建 `vx.y.z` tag；确认产物后按脚本提示手动推送 tag、创建 GitHub Release。
 
 使用者下载对应的 tar.gz，解压到 `~/.hermes/skills/` 或 `~/.claude/skills/` 即可。解压后得到 `mdhtml/` 目录，其中的 `mdhtml` CLI、模板和 vendor 资源同级，可直接运行 `mdhtml/mdhtml build mdhtml/examples/demo.md`。
+
+VSCode 扩展可通过 `code --install-extension dist/mdhtml-vscode-vx.y.z.vsix` 安装，或在 VSCode 扩展面板的「…」菜单里选择「从 VSIX 安装」。

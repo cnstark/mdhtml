@@ -2,6 +2,8 @@
 
 把本目录复制到 `~/.vscode/extensions/mdhtml`，重启 VSCode；也可以在 VSCode 中打开本目录，按 F5 启动扩展开发宿主。目录中的模板和 drawio viewer 是独立安装所需的资源副本。无需安装依赖或构建。
 
+发布时脚本会生成 `dist/mdhtml-vscode-vX.Y.Z.vsix`，可用 `code --install-extension mdhtml-vscode-vX.Y.Z.vsix` 安装，或在扩展面板的「…」菜单里选择「从 VSIX 安装」。
+
 双击 `.md` 文件会使用 VSCode 原生文本编辑器。在编辑器标题栏点击 **mdhtml 预览** 图标，或从命令面板运行 **mdhtml 预览**，即可在右侧打开预览面板。预览会跟随当前活动的 `.md` 编辑器；切到其他类型的文件时保持当前 Markdown 内容。关闭 Markdown 标签页不会关闭预览面板。
 
 在原生编辑器修改正文后，预览会自动刷新。预览面板保留大纲、搜索、主题、drawio 和批注。新建、回复、编辑或删除批注会更新 VSCode 文档缓冲区，原生编辑器会立即显示变化；点击预览中的“更新文档”也只更新缓冲区。文档标签页的未保存标记由 VSCode 管理，使用原生编辑器的 Cmd/Ctrl+S 写入磁盘。

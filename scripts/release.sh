@@ -13,6 +13,7 @@ fi
 version="$1"
 tag="v$version"
 archive="dist/mdhtml-skill-$tag.tar.gz"
+vsix="dist/mdhtml-vscode-$tag.vsix"
 
 # 发布只接受干净的工作区，避免把未提交内容混进产物。
 status="$(git status --porcelain=v1 --untracked-files=all)"
@@ -51,14 +52,18 @@ cp -R vendor examples dist/mdhtml/
 find dist/mdhtml/examples -type f -name '*.md.html' -delete
 
 tar -czf "$archive" -C dist mdhtml
+
+# VSCode 扩展单独打包成 .vsix，与 skill 一起作为发布产物。
+scripts/package-vsix.sh "$version" "$vsix"
 git tag "$tag"
 
 echo "产物：$root/$archive"
+echo "      $root/$vsix"
 if command -v sha256sum >/dev/null 2>&1; then
-  sha256sum "$archive"
+  sha256sum "$archive" "$vsix"
 else
-  shasum -a 256 "$archive"
+  shasum -a 256 "$archive" "$vsix"
 fi
 echo "请确认产物后手动运行："
 echo "  git push origin $tag"
-echo "  gh release create $tag $archive"
+echo "  gh release create $tag $archive $vsix"

@@ -25,4 +25,13 @@ vm.runInContext('notes = deleteNoteTurn(notes, notes[0], 1)', context);
 assert.equal(call('notes[0].body.length'), 1);
 vm.runInContext('notes = deleteNoteTurn(notes, notes[0], 0)', context);
 assert.deepEqual(call('notes'), []);
+
+// 归档状态是普通字段：读取、保存都要原样保留，旧数据默认没有该字段。
+context.archivedSource = `正文\n\n<!-- mdhtml-annotations\n${JSON.stringify([{...note, archived:true}])}\n-->\n`;
+assert.deepEqual(call('Object.hasOwn(readAnnotations(source).notes[0], "archived")'), false);
+assert.deepEqual(call('readAnnotations(archivedSource).notes[0].archived'), true);
+vm.runInContext('var archivedSaved = writeAnnotations(archivedSource, readAnnotations(archivedSource).notes)', context);
+assert.equal(call('readAnnotations(archivedSaved).notes[0].archived'), true);
+vm.runInContext('var restored = readAnnotations(archivedSaved).notes; delete restored[0].archived; archivedSaved = writeAnnotations(archivedSaved, restored)', context);
+assert.equal(call('Object.hasOwn(readAnnotations(archivedSaved).notes[0], "archived")'), false);
 console.log('annotation threads: OK');

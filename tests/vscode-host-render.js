@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const {buildWebviewHtml} = require('../vscode/extension');
+const {buildWebviewHtml, buildStandaloneHtml, expandDrawioImages} = require('../vscode/extension');
 
 const template = fs.readFileSync(path.join(__dirname, '..', 'template.html'), 'utf8');
 const app = template.match(/<script id="mdhtml-app">\n([\s\S]*?)<\/script>/)[1];
@@ -102,6 +102,37 @@ async function run() {
   const html = buildWebviewHtml(template, markdown, {resourceBase: base, cspSource: 'vscode-resource:'});
   const encoded = html.match(/<script id="md-source" type="text\/markdown">([\s\S]*?)<\/script>/)[1];
   assert.equal(encoded.replace(/<\\\/script/gi, '</script').replace(/\\\\/g, '\\'), markdown);
+
+  // 导出独立 .md.html：无 webview CSP / 资源基址，drawio 代码块内联 viewer。
+  const drawioMarkdown = '# 原文\n\n```drawio\n<mxGraphModel/>\n```\n';
+  const standalone = buildStandaloneHtml(template, drawioMarkdown, {fileName: 'x.md', viewerCode: 'VIEWER'});
+  assert.match(standalone, /<title>原文<\/title>/);
+  assert.match(standalone, /<script id="drawio-viewer">VIEWER<\/script>/);
+  assert.doesNotMatch(standalone, /Content-Security-Policy/);
+  assert.doesNotMatch(standalone, /window\.mdhtmlResourceBase = "/);
+  const standaloneSource = standalone.match(/<script id="md-source" type="text\/markdown">([\s\S]*?)<\/script>/)[1];
+  assert.equal(standaloneSource.replace(/<\\\/script/gi, '</script').replace(/\\\\/g, '\\'), drawioMarkdown);
+  const standalonePlain = buildStandaloneHtml(template, '# 无图\n', {fileName: 'x.md', viewerCode: 'VIEWER'});
+  assert.doesNotMatch(standalonePlain, /<script id="drawio-viewer">VIEWER<\/script>/);
+  assert.doesNotMatch(standalonePlain, /<!--@@VIEWER@@-->/);
+
+  // 导出前把本地 .drawio 图片引用展开为代码块；代码围栏和批注 JSON 不处理。
+  const files = {'diagrams/a.drawio': '<mxGraphModel/>\n'};
+  const readDrawio = async name => files[name] ?? null;
+  const expanded = await expandDrawioImages('# T\n\n![](<diagrams/a.drawio>)\n', readDrawio);
+  assert.equal(expanded.markdown, '# T\n\n\n\n```drawio\n<mxGraphModel/>\n```\n\n\n');
+  assert.deepEqual(expanded.warnings, []);
+  const fenced = await expandDrawioImages('```\n![](diagrams/a.drawio)\n```\n', readDrawio);
+  assert.equal(fenced.markdown, '```\n![](diagrams/a.drawio)\n```\n');
+  const annotated = await expandDrawioImages('![](diagrams/a.drawio)\n\n<!-- mdhtml-annotations\n[{"body":"![](missing.drawio)"}]\n-->\n', readDrawio);
+  assert.match(annotated.markdown, /```drawio\n<mxGraphModel\/>\n```/);
+  assert.match(annotated.markdown, /"body":"!\[\]\(missing\.drawio\)"/);
+  assert.deepEqual(annotated.warnings, []);
+  const missing = await expandDrawioImages('![](gone.drawio)', readDrawio);
+  assert.equal(missing.markdown, '![](gone.drawio)');
+  assert.deepEqual(missing.warnings, ['gone.drawio']);
+  const remote = await expandDrawioImages('![](https://e/x.drawio) ![](/local/x.drawio)', readDrawio);
+  assert.equal(remote.markdown, '![](https://e/x.drawio) ![](/local/x.drawio)');
 
   const messages = [];
   const saveContext = {

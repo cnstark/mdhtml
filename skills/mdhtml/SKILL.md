@@ -62,10 +62,11 @@ build 会覆盖同名 `.md.html`；模板升级（仓库里 template.html 变了
 
 - `body` 是**数组 = 多轮线程**，追加一轮就往后加一个元素（带新 `created`）；删到最后一轮等于删整条批注
 - `value` 支持 Markdown 语法
+- 可选 `"archived": true` 表示已归档：仍然保存在注释块里，但正文不渲染高亮/标记；取消归档时删掉该字段（缺失或 false 即进行中）
 
 ### 位置型批注（不绑定原文）
 
-除划词批注外，还有两种只锚定位置的批注：段落/标题/列表项等**块首位置批注**，以及固定在文档开头的**全文批注**。它们额外带一个自定义选择器，`exact` 仍是块首可见文字（无文字块为空），`TextPositionSelector` 的 `start === end`：
+除划词批注外，还有一种只锚定位置的**块首位置批注**（段落/标题/列表项等）。要给文档开头写整体批注，直接给第一个块加位置批注即可。它额外带一个自定义选择器，`exact` 仍是块首可见文字（无文字块为空），`TextPositionSelector` 的 `start === end`：
 
 ```json
 "target": {"selector": [
@@ -75,7 +76,7 @@ build 会覆盖同名 `.md.html`；模板升级（仓库里 template.html 变了
 ]}
 ```
 
-全文批注只需 `{"type":"x-mdhtml-anchor","kind":"document","label":"全文"}` 加 `{"type":"TextPositionSelector","start":0,"end":0}`。`kind` 为 `point`/`document` 时按点锚解析，缺失或为其他值按普通范围批注解析，所以旧批注格式无需迁移。手写位置批注时同样保证 `exact` 是渲染后的纯文本。
+`kind` 为 `point` 时按点锚解析，缺失或为其他值按普通范围批注解析。旧版的 `{"type":"x-mdhtml-anchor","kind":"document","label":"全文"}` 按文首位置批注兼容解析（`TextPositionSelector.start` 为 0），无需迁移。手写位置批注时同样保证 `exact` 是渲染后的纯文本。
 
 ### 锚点规则（改批注前必读）
 

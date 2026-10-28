@@ -39,10 +39,14 @@ const emptyPoint = {target:{selector:Anchors.makePointSelector('甲乙', 2, '')}
 assert.deepEqual(locate('甲乙', emptyPoint), [2, 2]);
 // 有文字但块首指纹消失（段落被删除）应判失锚，而不是静默漂移。
 assert.equal(Anchors.resolve('完全不同', point), null);
-// 全文批注始终解析到文档开头。
-const documentNote = {target:{selector:Anchors.makeDocumentSelector()}};
-assert.deepEqual(locate('任意内容', documentNote), [0, 0]);
-assert.equal(Anchors.resolve('任意内容', documentNote).document, true);
-assert.equal(Anchors.kind(documentNote), 'document');
+// 旧版全文批注按文首位置批注兼容解析。
+const legacyDocument = {target:{selector:[
+  {type:'x-mdhtml-anchor', kind:'document', label:'全文'},
+  {type:'TextPositionSelector', start:0, end:0}
+]}};
+assert.deepEqual(locate('任意内容', legacyDocument), [0, 0]);
+assert.equal(Anchors.resolve('任意内容', legacyDocument).point, true);
+assert.equal(Anchors.kind(legacyDocument), 'point');
+assert.equal(Anchors.label(legacyDocument), '文首');
 assert.equal(Anchors.kind(note('甲乙丙', 0, 1)), 'range');
 console.log('批注锚定：OK');

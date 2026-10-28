@@ -2,7 +2,7 @@
 
 > 打开这份文档后：左侧圆点代表已经存在的批注；把鼠标移到任意段落左侧，会出现「＋」，点击即可在块首添加一条位置批注。
 
-这是一份用来演示 **段落位置批注** 和 **全文批注** 的样例文档。它的目的不是讲功能清单，而是让你直接上手点一点。
+这是一份用来演示 **段落位置批注** 的样例文档。它的目的不是讲功能清单，而是让你直接上手点一点。
 
 ## 为什么需要位置批注
 
@@ -17,7 +17,7 @@
 ## 三种典型用法
 
 1. **段落待办**：在段落开头写下这里要补什么、删什么。
-2. **全局指示**：在文档开头写整体要求，比如读者是谁、重点看哪里。
+2. **全局指示**：给第一个块加位置批注，在文档开头写整体要求，比如读者是谁、重点看哪里。
 3. **批注式大纲**：给每一节的开头各写一句，侧栏按文档顺序排列，就是一份可执行的目录。
 
 ## 操作方式
@@ -25,11 +25,13 @@
 | 动作 | 桌面端 | 触屏 |
 | --- | --- | --- |
 | 给段落加位置批注 | 悬停段落，点左侧「＋」 | 长按段落 500ms，再点「＋」 |
-| 加全文批注 | 侧栏标题右侧「＋ 全文」 | 同左 |
 | 查看已有批注 | 点正文左侧圆点 | 同左 |
 | 划词批注 | 选中文字，点「批注」 | 同左 |
+| 归档/删除批注 | 侧栏卡片底部 | 同左 |
 
-位置批注落在块的第一个字符上，块可以是段落、标题、列表项、引用、代码块或表格。
+位置批注落在块的第一个字符上，块可以是段落、标题、列表项、引用、代码块或表格。文档开头需要整体批注时，直接给第一个块加位置批注即可。
+
+处理完的批注可以归档：正文里的标记会消失，侧栏顶部的「已归档」页签会保留这些批注，随时取消归档或删除。
 
 ## 数据格式
 
@@ -55,23 +57,29 @@
 <!-- mdhtml-annotations
 [
   {
-    "id": "urn:uuid:f78babe4-49f1-40bf-9b1c-0981c483419b",
+    "id": "urn:uuid:0a3aa7e1-b7dd-4571-8720-09e46ade3980",
     "type": "Annotation",
-    "created": "2026-10-28T03:00:44.096Z",
+    "created": "2026-10-28T05:20:57.599Z",
     "body": [
       {
         "type": "TextualBody",
         "value": "这份样例故意留了几处空位，正式发布前请补一张截图。",
         "format": "text/markdown",
-        "created": "2026-10-28T03:00:44.096Z"
+        "created": "2026-10-28T05:20:57.599Z"
       }
     ],
     "target": {
       "selector": [
         {
           "type": "x-mdhtml-anchor",
-          "kind": "document",
-          "label": "全文"
+          "kind": "point",
+          "label": "标题开头"
+        },
+        {
+          "type": "TextQuoteSelector",
+          "exact": "mdhtml 位置批注演示",
+          "prefix": "",
+          "suffix": "\n\n打开这份文档后：左侧圆点代表已经存在的批注；把鼠标移到任意段"
         },
         {
           "type": "TextPositionSelector",
@@ -82,15 +90,15 @@
     }
   },
   {
-    "id": "urn:uuid:2e87d52c-a8bb-47d3-a2a7-b07b10d2012d",
+    "id": "urn:uuid:0d045cb8-74d9-406c-aa16-3241f142af3f",
     "type": "Annotation",
-    "created": "2026-10-28T03:00:44.149Z",
+    "created": "2026-10-28T05:20:57.649Z",
     "body": [
       {
         "type": "TextualBody",
         "value": "这一节需要补一个真实案例。",
         "format": "text/markdown",
-        "created": "2026-10-28T03:00:44.149Z"
+        "created": "2026-10-28T05:20:57.649Z"
       }
     ],
     "target": {
@@ -108,22 +116,22 @@
         },
         {
           "type": "TextPositionSelector",
-          "start": 128,
-          "end": 128
+          "start": 121,
+          "end": 121
         }
       ]
     }
   },
   {
-    "id": "urn:uuid:eaa31e4d-9090-4b6e-988f-3be1008572d7",
+    "id": "urn:uuid:f1f4a0f0-74c2-410b-9f9e-fffbfb22da34",
     "type": "Annotation",
-    "created": "2026-10-28T03:00:44.176Z",
+    "created": "2026-10-28T05:20:57.676Z",
     "body": [
       {
         "type": "TextualBody",
         "value": "这就是我想把批注当大纲用的场景。",
         "format": "text/markdown",
-        "created": "2026-10-28T03:00:44.176Z"
+        "created": "2026-10-28T05:20:57.676Z"
       }
     ],
     "target": {
@@ -141,22 +149,22 @@
         },
         {
           "type": "TextPositionSelector",
-          "start": 215,
-          "end": 215
+          "start": 208,
+          "end": 208
         }
       ]
     }
   },
   {
-    "id": "urn:uuid:c75df6ac-a7bc-4c8e-ac48-431bc3450966",
+    "id": "urn:uuid:432f359c-990d-4b50-84d5-4756c4e7f9cf",
     "type": "Annotation",
-    "created": "2026-10-28T03:00:44.203Z",
+    "created": "2026-10-28T05:20:57.702Z",
     "body": [
       {
         "type": "TextualBody",
         "value": "表格可以再加一列「快捷键」。",
         "format": "text/markdown",
-        "created": "2026-10-28T03:00:44.203Z"
+        "created": "2026-10-28T05:20:57.702Z"
       }
     ],
     "target": {
@@ -168,28 +176,28 @@
         },
         {
           "type": "TextQuoteSelector",
-          "exact": "动作\n桌面端\n触屏\n\n\n\n给段落加位置批注\n悬停段落，点左侧「＋」\n长按段落 500ms，再点「＋」\n\n\n加全文批注\n侧栏标题右侧「＋ 全文」\n同左\n\n\n查看已有批注\n点正文左侧圆点\n同左\n\n\n划词批注\n选中文字，点「批注」\n同左\n\n",
+          "exact": "动作\n桌面端\n触屏\n\n\n\n给段落加位置批注\n悬停段落，点左侧「＋」\n长按段落 500ms，再点「＋」\n\n\n查看已有批注\n点正文左侧圆点\n同左\n\n\n划词批注\n选中文字，点「批注」\n同左\n\n\n归档/删除批注\n侧栏卡片底部\n同左\n\n",
           "prefix": "，侧栏按文档顺序排列，就是一份可执行的目录。\n\n操作方式\n\n\n\n",
           "suffix": "\n位置批注落在块的第一个字符上，块可以是段落、标题、列表项、引用"
         },
         {
           "type": "TextPositionSelector",
-          "start": 390,
-          "end": 390
+          "start": 394,
+          "end": 394
         }
       ]
     }
   },
   {
-    "id": "urn:uuid:53f0ec49-6087-4189-9b72-b366c599cdfc",
+    "id": "urn:uuid:2417b161-ed00-492d-b577-9c019577f433",
     "type": "Annotation",
-    "created": "2026-10-28T03:00:44.234Z",
+    "created": "2026-10-28T05:20:57.732Z",
     "body": [
       {
         "type": "TextualBody",
         "value": "示例只保留一个选择器就够了，减少干扰。",
         "format": "text/markdown",
-        "created": "2026-10-28T03:00:44.234Z"
+        "created": "2026-10-28T05:20:57.732Z"
       }
     ],
     "target": {
@@ -207,22 +215,22 @@
         },
         {
           "type": "TextPositionSelector",
-          "start": 609,
-          "end": 609
+          "start": 688,
+          "end": 688
         }
       ]
     }
   },
   {
-    "id": "urn:uuid:66cb16b5-6e2b-4bfa-91db-7c111ae4b053",
+    "id": "urn:uuid:fb75e97c-ee86-4211-8952-30db95e5b099",
     "type": "Annotation",
-    "created": "2026-10-28T03:00:44.260Z",
+    "created": "2026-10-28T05:20:57.757Z",
     "body": [
       {
         "type": "TextualBody",
         "value": "发布前确认这段和实际行为一致。",
         "format": "text/markdown",
-        "created": "2026-10-28T03:00:44.260Z"
+        "created": "2026-10-28T05:20:57.757Z"
       }
     ],
     "target": {
@@ -240,22 +248,22 @@
         },
         {
           "type": "TextPositionSelector",
-          "start": 737,
-          "end": 737
+          "start": 816,
+          "end": 816
         }
       ]
     }
   },
   {
-    "id": "urn:uuid:cce9d338-3309-4d3c-b0e9-1b4205e83496",
+    "id": "urn:uuid:67a01c3a-aa54-4d4e-aa91-490d18aa979c",
     "type": "Annotation",
-    "created": "2026-10-28T03:00:44.285Z",
+    "created": "2026-10-28T05:20:57.783Z",
     "body": [
       {
         "type": "TextualBody",
         "value": "划词批注保留黄色高亮，和蓝色的位置批注区分开。",
         "format": "text/markdown",
-        "created": "2026-10-28T03:00:44.285Z"
+        "created": "2026-10-28T05:20:57.783Z"
       }
     ],
     "target": {
@@ -268,11 +276,45 @@
         },
         {
           "type": "TextPositionSelector",
-          "start": 252,
-          "end": 262
+          "start": 245,
+          "end": 255
         }
       ]
     }
+  },
+  {
+    "id": "urn:uuid:53419485-5d4f-4fb8-807c-a5cda1861b0f",
+    "type": "Annotation",
+    "created": "2026-10-28T05:20:57.812Z",
+    "body": [
+      {
+        "type": "TextualBody",
+        "value": "这条批注已经处理完，归档后正文不再显示，可在右侧「已归档」里找回。",
+        "format": "text/markdown",
+        "created": "2026-10-28T05:20:57.812Z"
+      }
+    ],
+    "target": {
+      "selector": [
+        {
+          "type": "x-mdhtml-anchor",
+          "kind": "point",
+          "label": "标题开头"
+        },
+        {
+          "type": "TextQuoteSelector",
+          "exact": "操作方式",
+          "prefix": "节的开头各写一句，侧栏按文档顺序排列，就是一份可执行的目录。\n\n",
+          "suffix": "\n\n\n\n动作\n桌面端\n触屏\n\n\n\n给段落加位置批注\n悬停段落，点"
+        },
+        {
+          "type": "TextPositionSelector",
+          "start": 386,
+          "end": 386
+        }
+      ]
+    },
+    "archived": true
   }
 ]
 -->

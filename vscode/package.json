@@ -5,17 +5,25 @@
   "version": "1.0.0",
   "publisher": "mdhtml-local",
   "engines": {"vscode": "^1.85.0"},
-  "activationEvents": ["onCommand:mdhtml.openPreview", "onLanguage:markdown"],
+  "activationEvents": ["onCommand:mdhtml.openPreview", "onCommand:mdhtml.exportHtml", "onLanguage:markdown"],
   "main": "./extension.js",
   "contributes": {
     "commands": [{
       "command": "mdhtml.openPreview",
       "title": "mdhtml 预览",
       "icon": "$(open-preview)"
+    }, {
+      "command": "mdhtml.exportHtml",
+      "title": "导出 .md.html",
+      "icon": "$(export)"
     }],
     "menus": {
       "editor/title": [{
         "command": "mdhtml.openPreview",
+        "when": "resourceExtname == .md",
+        "group": "navigation"
+      }, {
+        "command": "mdhtml.exportHtml",
         "when": "resourceExtname == .md",
         "group": "navigation"
       }]

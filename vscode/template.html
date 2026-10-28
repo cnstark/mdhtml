@@ -2820,6 +2820,8 @@ viewer.addEventListener("pointerout", event => {
 });
 document.addEventListener("pointerdown", event => {
   if (!notePopover.contains(event.target) && !event.target.closest(".annotation-mark,.annotation-point")) closeNotePopover();
+  // 批注表单打开时点击其他位置视为放弃（点表单内部/确定按钮除外）。
+  if (noteForm.style.display === "block" && !noteForm.contains(event.target) && event.target !== selectionAction) closeNoteForm();
 });
 // 滚动时关闭气泡，避免固定定位的气泡脱离原文。
 window.addEventListener("scroll", closeNotePopover, {passive:true, capture:true});

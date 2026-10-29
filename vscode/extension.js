@@ -107,6 +107,8 @@ function activate(context) {
   let panelDocument = null;
   let pendingDocument = null;
   let saveQueue = Promise.resolve();
+  // 预览面板保存写入的文档内容；随后的 change 事件不再回传给 webview，避免回声。
+  let webviewEcho = null;
 
   const isMarkdownEditor = editor => editor && editor.document.uri.fsPath.toLowerCase().endsWith('.md');
   const resourceBase = (webview, document) =>
@@ -204,8 +206,17 @@ function activate(context) {
         exportMarkdown(target, message.markdown).then(result => webview.postMessage({type: 'exportHtmlResult', ...result}));
         return;
       }
-      if (message.type !== 'save' || typeof message.markdown !== 'string' ||
-          message.documentUri !== panelDocument?.uri.toString()) return;
+      if (message.type === 'confirm') {
+        Promise.resolve(vscode.window.showWarningMessage(String(message.message || ''), {modal: true}, '删除'))
+          .then(choice => webview.postMessage({type: 'confirmResult', id: message.id, confirmed: choice === '删除'}));
+        return;
+      }
+      if (message.type !== 'save' || typeof message.markdown !== 'string') return;
+      if (message.documentUri !== panelDocument?.uri.toString()) {
+        // 不能静默丢弃，否则 webview 的保存状态会一直卡住。
+        webview.postMessage({type: 'saveResult', id: message.id, ok: false, error: '文档已切换，请重试保存'});
+        return;
+      }
       const target = panelDocument;
       saveQueue = saveQueue.catch(() => {}).then(async () => {
         try {
@@ -221,7 +232,13 @@ function activate(context) {
             const edit = new vscode.WorkspaceEdit();
             edit.replace(target.uri, new vscode.Range(target.positionAt(start), target.positionAt(before.length - end)),
               message.markdown.slice(start, message.markdown.length - end));
-            if (!await vscode.workspace.applyEdit(edit)) throw new Error('WorkspaceEdit 未能更新文档');
+            webviewEcho = {uri: target.uri.toString(), text: message.markdown};
+            try {
+              if (!await vscode.workspace.applyEdit(edit)) throw new Error('WorkspaceEdit 未能更新文档');
+            } catch (error) {
+              webviewEcho = null;
+              throw error;
+            }
           }
           webview.postMessage({type: 'saveResult', id: message.id, ok: true});
         } catch (error) {
@@ -250,10 +267,16 @@ function activate(context) {
     if (panel && isMarkdownEditor(editor)) sendDocument(editor.document);
   }));
   context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    if (panel && !pendingDocument && panelDocument && event.document.uri.toString() === panelDocument.uri.toString()) {
-      panel.webview.postMessage({type: 'setContent', markdown: event.document.getText(),
-        documentUri: panelDocument.uri.toString()});
+    if (!panel || pendingDocument || !panelDocument || event.document.uri.toString() !== panelDocument.uri.toString()) return;
+    const text = event.document.getText();
+    // 这次变更来自预览面板自己的保存：webview 会用 saveResult 更新基线，
+    // 回传 setContent 反而会在保存完成前被判成冲突。
+    if (webviewEcho && webviewEcho.uri === event.document.uri.toString() && webviewEcho.text === text) {
+      webviewEcho = null;
+      return;
     }
+    webviewEcho = null;
+    panel.webview.postMessage({type: 'setContent', markdown: text, documentUri: panelDocument.uri.toString()});
   }));
 }
 

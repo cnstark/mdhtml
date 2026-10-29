@@ -35,6 +35,7 @@ const sent = [];
 const commands = new Map();
 const infoMessages = [];
 const warningMessages = [];
+let warningChoice;
 let lastWrite;
 let panel;
 let editCount = 0;
@@ -58,7 +59,7 @@ const vscode = {
       return vscode.Uri.file(options.defaultUri?.fsPath || '/tmp/document.md.html');
     },
     showInformationMessage(message) { infoMessages.push(message); },
-    showWarningMessage(message) { warningMessages.push(message); },
+    showWarningMessage(message) { warningMessages.push(message); return warningChoice; },
     showErrorMessage() {},
     createWebviewPanel(viewType, title, column, options) {
       panel = {viewType, title, column, options, reveal(column, preserveFocus) { this.revealed = [column, preserveFocus]; },
@@ -115,17 +116,40 @@ assert.match(panel.title, /second.md/);
 second.value = '# Changed\n';
 listeners.change({document: second});
 assert.equal(sent.at(-1).markdown, '# Changed\n');
+const beforeSaveSets = sent.filter(message => message.type === 'setContent').length;
 listeners.message({type: 'save', documentUri: second.uri.toString(), markdown: '# Changed\n\n<!-- note -->\n', baseMarkdown: '# Changed\n', id: 1});
 setImmediate(async () => {
   assert.equal(second.value, '# Changed\n\n<!-- note -->\n');
   assert.equal(editCount, 1);
   assert.deepEqual(sent.at(-1), {type: 'saveResult', id: 1, ok: true});
+  // 保存引起的文档变更不再回传 webview。
+  assert.equal(sent.filter(message => message.type === 'setContent').length, beforeSaveSets);
   listeners.message({type: 'save', documentUri: second.uri.toString(), markdown: '# Stale\n',
     baseMarkdown: '# Changed\n', id: 2});
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(second.value, '# Changed\n\n<!-- note -->\n');
   assert.equal(editCount, 1);
   assert.equal(sent.at(-1).ok, false);
+
+  // 保存之后的外部编辑仍然回传，回声标记只影响保存自身引起的那次变化。
+  second.value = '# External\n';
+  listeners.change({document: second});
+  assert.deepEqual(sent.at(-1), {type: 'setContent', markdown: '# External\n', documentUri: second.uri.toString()});
+
+  // 文档已切换时保存不能静默丢弃，否则 webview 会一直处于保存中。
+  listeners.message({type: 'save', documentUri: 'file:///tmp/other.md', markdown: '# Other\n', baseMarkdown: '# Other\n', id: 3});
+  assert.deepEqual(sent.at(-1), {type: 'saveResult', id: 3, ok: false, error: '文档已切换，请重试保存'});
+
+  // 删除确认走宿主弹窗，因为 webview 不执行 window.confirm。
+  warningChoice = '删除';
+  listeners.message({type: 'confirm', id: 7, message: '删除整条批注？'});
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(warningMessages.at(-1), '删除整条批注？');
+  assert.deepEqual(sent.at(-1), {type: 'confirmResult', id: 7, confirmed: true});
+  warningChoice = undefined;
+  listeners.message({type: 'confirm', id: 8, message: '删除整条批注？'});
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(sent.at(-1), {type: 'confirmResult', id: 8, confirmed: false});
 
   // 编辑器标题栏命令导出：默认文件名为 xxx.md.html，内容是独立 HTML。
   lastWrite = undefined;
@@ -151,6 +175,7 @@ setImmediate(async () => {
   const diagram = document('diagram.md', '# Diagram\n\n![](media/a.drawio)\n');
   files.set('/tmp/media/a.drawio', Buffer.from('<mxGraphModel/>\n'));
   vscode.window.activeTextEditor = {document: diagram};
+  const warningCount = warningMessages.length;
   lastWrite = undefined;
   await commands.get('mdhtml.exportHtml')();
   assert.equal(lastWrite.uri.fsPath, '/tmp/diagram.md.html');
@@ -159,7 +184,7 @@ setImmediate(async () => {
   const diagramSource = diagramHtml.match(/<script id="md-source" type="text\/markdown">([\s\S]*?)<\/script>/)[1]
     .replace(/<\\\/script/gi, '</script').replace(/\\\\/g, '\\');
   assert.match(diagramSource, /```drawio\n<mxGraphModel\/>\n```/);
-  assert.equal(warningMessages.length, 0);
+  assert.equal(warningMessages.length, warningCount);
 
   // 缺失的 drawio 文件保留原引用并给出警告，导出仍继续。
   const broken = document('broken.md', '# Broken\n\n![](missing.drawio)\n');

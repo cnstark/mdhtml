@@ -187,6 +187,35 @@ async function run() {
   assert.equal(hostContext.markdown, '# Local note\n');
   assert.equal(hostMessages.at(-1).type, 'contentDeferred');
 
+  // 宿主回传的内容与本地未保存改动一致时视为已同步，不报冲突。
+  hostContext.markdown = '# Local note\n';
+  hostContext.savedMarkdown = '# Old\n';
+  const deferredCount = hostMessages.filter(message => message.type === 'contentDeferred').length;
+  messageHandler({data: {type:'setContent', markdown:'# Local note\n', documentUri:'file:///old.md'}});
+  assert.equal(hostContext.savedMarkdown, '# Local note\n');
+  assert.equal(hostMessages.filter(message => message.type === 'contentDeferred').length, deferredCount);
+
+  let confirmedValue;
+  hostContext.pendingHostConfirms = new Map([[9, value => { confirmedValue = value; }]]);
+  messageHandler({data: {type:'confirmResult', id:9, confirmed:true}});
+  assert.equal(confirmedValue, true);
+  assert.equal(hostContext.pendingHostConfirms.size, 0);
+
+  const confirmMessages = [];
+  const confirmContext = {
+    vscodeHost: {postMessage: message => confirmMessages.push(message)},
+    pendingHostConfirms: new Map(), hostConfirmId: 0, window: {confirm: () => true}
+  };
+  vm.createContext(confirmContext);
+  vm.runInContext(app.slice(app.indexOf('function confirmAction('), app.indexOf('function cachedHandle(')), confirmContext);
+  const confirmed = confirmContext.confirmAction('删除整条批注？');
+  assert.equal(confirmMessages[0].type, 'confirm');
+  assert.equal(confirmMessages[0].message, '删除整条批注？');
+  confirmContext.pendingHostConfirms.get(confirmMessages[0].id)(true);
+  assert.equal(await confirmed, true);
+  confirmContext.vscodeHost = null;
+  assert.equal(await confirmContext.confirmAction('浏览器确认'), true);
+
   const annotationTimers = [];
   const annotationContext = {
     invalidAnnotationBlock: false, annotations: [], markdown: '# Note\n',

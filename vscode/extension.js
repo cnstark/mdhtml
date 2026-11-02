@@ -111,8 +111,10 @@ function activate(context) {
   let webviewEcho = null;
 
   const isMarkdownEditor = editor => editor && editor.document.uri.fsPath.toLowerCase().endsWith('.md');
+  // 目录 URI 的 toString() 不带尾部斜杠，而相对图片路径要拼在目录后面；
+  // 切文档后这里若漏了斜杠，所有本地图片和 drawio 都会 404。
   const resourceBase = (webview, document) =>
-    webview.asWebviewUri(vscode.Uri.joinPath(document.uri, '..')).toString();
+    webview.asWebviewUri(vscode.Uri.joinPath(document.uri, '..')).toString().replace(/\/?$/, '/');
   const sendDocument = document => {
     if (!panel || !document) return;
     if (document.uri.toString() === panelDocument?.uri.toString()) {

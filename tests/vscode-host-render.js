@@ -173,8 +173,9 @@ async function run() {
   };
   vm.createContext(hostContext);
   vm.runInContext(app.slice(app.indexOf('if (vscodeHost) window.addEventListener("message"'), app.indexOf('const outlineToggle =')), hostContext);
-  messageHandler({data: {type:'setContent', markdown:'# New\n', documentUri:'file:///new.md', resourceBase:'vscode-webview://new/'}});
+  messageHandler({data: {type:'setContent', markdown:'# New\n', documentUri:'file:///new.md', resourceBase:'vscode-webview://new'}});
   assert.equal(hostContext.markdown, '# New\n');
+  // 宿主传来的目录基址可能没有尾斜杠，webview 要补齐，否则相对图片路径拼错。
   assert.equal(hostContext.window.mdhtmlResourceBase, 'vscode-webview://new/');
   assert.equal(pathParts.name.textContent, 'new.md');
   assert.equal(timers.at(-1).delay, 300);

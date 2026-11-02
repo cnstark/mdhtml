@@ -64,7 +64,7 @@ const vscode = {
     createWebviewPanel(viewType, title, column, options) {
       panel = {viewType, title, column, options, reveal(column, preserveFocus) { this.revealed = [column, preserveFocus]; },
         onDidDispose(handler) { listeners.dispose = handler; return disposable; },
-        webview: {cspSource: 'vscode-resource:', asWebviewUri: uri => ({toString: () => `vscode-webview://${path.basename(uri.fsPath)}/`}),
+        webview: {cspSource: 'vscode-resource:', asWebviewUri: uri => ({toString: () => `vscode-webview://${path.basename(uri.fsPath)}`}),
           postMessage(message) { sent.push(message); }, onDidReceiveMessage(handler) { listeners.message = handler; return disposable; }}};
       return panel;
     }
@@ -102,6 +102,7 @@ assert.equal(panel.viewType, 'mdhtml.preview');
 assert.equal(panel.column, vscode.ViewColumn.Beside);
 assert.equal(panel.options.retainContextWhenHidden, true);
 assert.match(panel.webview.html, /window.mdhtmlDocumentUri = "file:\/\/\/tmp\/first.md"/);
+assert.match(panel.webview.html, /window\.mdhtmlResourceBase = "vscode-webview:\/\/tmp\/";/);
 assert.match(panel.webview.html, /id="drawio-viewer"/);
 assert.notEqual(panel.webview.html, fs.readFileSync('vscode/template.html', 'utf8'));
 commands.get('mdhtml.openPreview')();
@@ -111,6 +112,8 @@ assert.equal(sent.length, 0);
 listeners.active({document: second});
 assert.equal(sent.at(-1).type, 'setContent');
 assert.equal(sent.at(-1).markdown, '# Second\n');
+// 切换文档后资源基址仍要是带尾斜杠的目录，否则图片路径会拼错。
+assert.equal(sent.at(-1).resourceBase, 'vscode-webview://tmp/');
 listeners.message({type: 'contentApplied', documentUri: second.uri.toString()});
 assert.match(panel.title, /second.md/);
 second.value = '# Changed\n';

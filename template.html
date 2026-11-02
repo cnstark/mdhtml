@@ -2533,7 +2533,8 @@ if (vscodeHost) window.addEventListener("message", event => {
     if (switched) {
       hostDocumentUri = message.documentUri;
       window.mdhtmlDocumentUri = hostDocumentUri;
-      window.mdhtmlResourceBase = message.resourceBase;
+      // 资源基址必须是目录形式（带尾斜杠），否则相对图片路径会拼错。
+      if (message.resourceBase) window.mdhtmlResourceBase = String(message.resourceBase).replace(/\/?$/, "/");
       document.getElementById("path-prefix").textContent = "";
       document.getElementById("path-name").textContent = decodeURIComponent(hostDocumentUri.split("/").pop() || "");
       documentPath.title = hostDocumentUri;

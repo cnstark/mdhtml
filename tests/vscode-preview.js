@@ -6,10 +6,14 @@ const path = require('node:path');
 const Module = require('node:module');
 const manifest = require('../vscode/package.json');
 
-assert.deepEqual(manifest.activationEvents, ['onCommand:mdhtml.openPreview', 'onCommand:mdhtml.exportHtml', 'onLanguage:markdown']);
-assert.equal(manifest.contributes.customEditors, undefined);
+assert.deepEqual(manifest.activationEvents, [
+  'onCustomEditor:mdhtml.editor', 'onCommand:mdhtml.openPreview', 'onCommand:mdhtml.exportHtml'
+]);
+assert.deepEqual(manifest.contributes.customEditors, [{
+  viewType: 'mdhtml.editor', displayName: 'mdhtml', selector: [{filenamePattern: '*.md'}], priority: 'default'
+}]);
 assert.deepEqual(manifest.contributes.commands, [{
-  command: 'mdhtml.openPreview', title: 'mdhtml 预览', icon: '$(open-preview)'
+  command: 'mdhtml.openPreview', title: '用 mdhtml 打开', icon: '$(open-preview)'
 }, {
   command: 'mdhtml.exportHtml', title: '导出 .md.html', icon: '$(export)'
 }]);
@@ -23,25 +27,32 @@ const docs = new Map();
 const files = new Map();
 function document(name, value) {
   const uri = {scheme: 'file', fsPath: `/tmp/${name}`, toString() { return `file:///tmp/${name}`; }};
-  const doc = {uri, value, getText() { return this.value; }, positionAt(offset) { return offset; }};
+  // value 是编辑器缓冲区，savedValue 是磁盘内容；applyEdit 只改缓冲区。
+  const doc = {
+    uri, value, savedValue: value, saveCount: 0,
+    getText() { return this.value; }, positionAt(offset) { return offset; },
+    get isDirty() { return this.value !== this.savedValue; },
+    async save() { this.saveCount++; this.savedValue = this.value; return true; }
+  };
   docs.set(uri.toString(), doc);
   return doc;
 }
 const first = document('first.md', '# First\n');
 const second = document('second.md', '# Second\n');
-const textFile = document('other.txt', 'text');
-const listeners = {};
-const sent = [];
+
+const changes = [];
 const commands = new Map();
+const executeCalls = [];
 const infoMessages = [];
 const warningMessages = [];
+const errorMessages = [];
 let warningChoice;
 let lastWrite;
-let panel;
+let customEditor;
 let editCount = 0;
 const disposable = {dispose() {}};
 const vscode = {
-  ViewColumn: {Beside: 2},
+  ViewColumn: {Beside: 2, Active: -1},
   Uri: {
     joinPath(uri, ...segments) {
       const fsPath = path.posix.normalize(segments.reduce((base, segment) => path.posix.join(base, segment), uri.fsPath));
@@ -51,23 +62,22 @@ const vscode = {
   },
   Range: class { constructor(start, end) { this.start = start; this.end = end; } },
   WorkspaceEdit: class { replace(uri, range, value) { this.uri = uri; this.range = range; this.value = value; } },
-  commands: {registerCommand(name, handler) { commands.set(name, handler); return disposable; }},
+  commands: {
+    registerCommand(name, handler) { commands.set(name, handler); return disposable; },
+    async executeCommand(name, ...args) { executeCalls.push([name, ...args]); }
+  },
   window: {
     activeTextEditor: {document: first},
-    onDidChangeActiveTextEditor(handler) { listeners.active = handler; return disposable; },
+    registerCustomEditorProvider(viewType, provider, options) {
+      customEditor = {viewType, provider, options};
+      return disposable;
+    },
     async showSaveDialog(options) {
       return vscode.Uri.file(options.defaultUri?.fsPath || '/tmp/document.md.html');
     },
     showInformationMessage(message) { infoMessages.push(message); },
     showWarningMessage(message) { warningMessages.push(message); return warningChoice; },
-    showErrorMessage() {},
-    createWebviewPanel(viewType, title, column, options) {
-      panel = {viewType, title, column, options, reveal(column, preserveFocus) { this.revealed = [column, preserveFocus]; },
-        onDidDispose(handler) { listeners.dispose = handler; return disposable; },
-        webview: {cspSource: 'vscode-resource:', asWebviewUri: uri => ({toString: () => `vscode-webview://${path.basename(uri.fsPath)}`}),
-          postMessage(message) { sent.push(message); }, onDidReceiveMessage(handler) { listeners.message = handler; return disposable; }}};
-      return panel;
-    }
+    showErrorMessage(message) { errorMessages.push(message); }
   },
   workspace: {
     fs: {
@@ -77,12 +87,15 @@ const vscode = {
       },
       async writeFile(uri, data) { lastWrite = {uri, data}; }
     },
-    onDidChangeTextDocument(handler) { listeners.change = handler; return disposable; },
+    onDidChangeTextDocument(handler) {
+      changes.push(handler);
+      return {dispose() { const index = changes.indexOf(handler); if (index >= 0) changes.splice(index, 1); }};
+    },
     async applyEdit(edit) {
       editCount++;
       const target = docs.get(edit.uri.toString());
       target.value = target.value.slice(0, edit.range.start) + edit.value + target.value.slice(edit.range.end);
-      listeners.change({document: target});
+      for (const handler of [...changes]) handler({document: target});
       return true;
     }
   }
@@ -95,84 +108,119 @@ Module._load = function(request, parent, isMain) {
 const {activate} = require('../vscode/extension');
 activate({subscriptions: []});
 Module._load = originalLoad;
+
+function createPanel() {
+  const panel = {
+    active: false, sent: [],
+    onDidDispose(handler) { panel.disposeHandler = handler; return disposable; },
+    webview: {
+      cspSource: 'vscode-resource:', html: '',
+      asWebviewUri: uri => ({toString: () => `vscode-webview://${path.basename(uri.fsPath)}`}),
+      postMessage(message) { panel.sent.push(message); },
+      onDidReceiveMessage(handler) { panel.messageHandler = handler; return disposable; }
+    }
+  };
+  return panel;
+}
+const tick = () => new Promise(resolve => setImmediate(resolve));
+
+assert.equal(customEditor.viewType, 'mdhtml.editor');
+assert.deepEqual(customEditor.options, {webviewOptions: {retainContextWhenHidden: true}});
 assert.ok(commands.has('mdhtml.openPreview'));
 assert.ok(commands.has('mdhtml.exportHtml'));
-commands.get('mdhtml.openPreview')();
-assert.equal(panel.viewType, 'mdhtml.preview');
-assert.equal(panel.column, vscode.ViewColumn.Beside);
-assert.equal(panel.options.retainContextWhenHidden, true);
-assert.match(panel.webview.html, /window.mdhtmlDocumentUri = "file:\/\/\/tmp\/first.md"/);
-assert.match(panel.webview.html, /window\.mdhtmlResourceBase = "vscode-webview:\/\/tmp\/";/);
-assert.match(panel.webview.html, /id="drawio-viewer"/);
-assert.notEqual(panel.webview.html, fs.readFileSync('vscode/template.html', 'utf8'));
-commands.get('mdhtml.openPreview')();
-assert.deepEqual(panel.revealed, [vscode.ViewColumn.Beside, true]);
-listeners.active({document: textFile});
-assert.equal(sent.length, 0);
-listeners.active({document: second});
-assert.equal(sent.at(-1).type, 'setContent');
-assert.equal(sent.at(-1).markdown, '# Second\n');
-// 切换文档后资源基址仍要是带尾斜杠的目录，否则图片路径会拼错。
-assert.equal(sent.at(-1).resourceBase, 'vscode-webview://tmp/');
-listeners.message({type: 'contentApplied', documentUri: second.uri.toString()});
-assert.match(panel.title, /second.md/);
-second.value = '# Changed\n';
-listeners.change({document: second});
-assert.equal(sent.at(-1).markdown, '# Changed\n');
-const beforeSaveSets = sent.filter(message => message.type === 'setContent').length;
-listeners.message({type: 'save', documentUri: second.uri.toString(), markdown: '# Changed\n\n<!-- note -->\n', baseMarkdown: '# Changed\n', id: 1});
+
+// 打开 .md 时直接以 mdhtml 自定义编辑器接管标签页。
+const firstPanel = createPanel();
+customEditor.provider.resolveCustomTextEditor(first, firstPanel);
+assert.equal(firstPanel.webview.options.enableScripts, true);
+assert.match(firstPanel.webview.html, /window.mdhtmlDocumentUri = "file:\/\/\/tmp\/first.md"/);
+assert.match(firstPanel.webview.html, /window\.mdhtmlResourceBase = "vscode-webview:\/\/tmp\/";/);
+assert.match(firstPanel.webview.html, /id="drawio-viewer"/);
+assert.notEqual(firstPanel.webview.html, fs.readFileSync('vscode/template.html', 'utf8'));
+
+first.value = '# Changed\n';
+for (const handler of changes) handler({document: first});
+assert.deepEqual(firstPanel.sent.at(-1), {
+  type: 'setContent', markdown: '# Changed\n', documentUri: 'file:///tmp/first.md',
+  resourceBase: 'vscode-webview://tmp/'
+});
+const beforeSaveSets = firstPanel.sent.filter(message => message.type === 'setContent').length;
+firstPanel.messageHandler({type: 'save', documentUri: first.uri.toString(),
+  markdown: '# Changed\n\n<!-- note -->\n', baseMarkdown: '# Changed\n', id: 1});
 setImmediate(async () => {
-  assert.equal(second.value, '# Changed\n\n<!-- note -->\n');
+  assert.equal(first.value, '# Changed\n\n<!-- note -->\n');
   assert.equal(editCount, 1);
-  assert.deepEqual(sent.at(-1), {type: 'saveResult', id: 1, ok: true});
+  // applyEdit 只改编辑器缓冲区；保存批注必须同时写回磁盘。
+  assert.equal(first.saveCount, 1);
+  assert.equal(first.savedValue, '# Changed\n\n<!-- note -->\n');
+  assert.deepEqual(firstPanel.sent.at(-1), {type: 'saveResult', id: 1, ok: true});
   // 保存引起的文档变更不再回传 webview。
-  assert.equal(sent.filter(message => message.type === 'setContent').length, beforeSaveSets);
-  listeners.message({type: 'save', documentUri: second.uri.toString(), markdown: '# Stale\n',
+  assert.equal(firstPanel.sent.filter(message => message.type === 'setContent').length, beforeSaveSets);
+
+  firstPanel.messageHandler({type: 'save', documentUri: first.uri.toString(), markdown: '# Stale\n',
     baseMarkdown: '# Changed\n', id: 2});
-  await new Promise(resolve => setImmediate(resolve));
-  assert.equal(second.value, '# Changed\n\n<!-- note -->\n');
+  await tick();
+  assert.equal(first.value, '# Changed\n\n<!-- note -->\n');
   assert.equal(editCount, 1);
-  assert.equal(sent.at(-1).ok, false);
+  assert.equal(first.saveCount, 1);
+  assert.equal(firstPanel.sent.at(-1).ok, false);
 
   // 保存之后的外部编辑仍然回传，回声标记只影响保存自身引起的那次变化。
-  second.value = '# External\n';
-  listeners.change({document: second});
-  assert.deepEqual(sent.at(-1), {type: 'setContent', markdown: '# External\n', documentUri: second.uri.toString()});
-
-  // 文档已切换时保存不能静默丢弃，否则 webview 会一直处于保存中。
-  listeners.message({type: 'save', documentUri: 'file:///tmp/other.md', markdown: '# Other\n', baseMarkdown: '# Other\n', id: 3});
-  assert.deepEqual(sent.at(-1), {type: 'saveResult', id: 3, ok: false, error: '文档已切换，请重试保存'});
+  first.value = '# External\n';
+  for (const handler of changes) handler({document: first});
+  assert.deepEqual(firstPanel.sent.at(-1), {type: 'setContent', markdown: '# External\n',
+    documentUri: 'file:///tmp/first.md', resourceBase: 'vscode-webview://tmp/'});
 
   // 删除确认走宿主弹窗，因为 webview 不执行 window.confirm。
   warningChoice = '删除';
-  listeners.message({type: 'confirm', id: 7, message: '删除整条批注？'});
-  await new Promise(resolve => setImmediate(resolve));
+  firstPanel.messageHandler({type: 'confirm', id: 7, message: '删除整条批注？'});
+  await tick();
   assert.equal(warningMessages.at(-1), '删除整条批注？');
-  assert.deepEqual(sent.at(-1), {type: 'confirmResult', id: 7, confirmed: true});
+  assert.deepEqual(firstPanel.sent.at(-1), {type: 'confirmResult', id: 7, confirmed: true});
   warningChoice = undefined;
-  listeners.message({type: 'confirm', id: 8, message: '删除整条批注？'});
-  await new Promise(resolve => setImmediate(resolve));
-  assert.deepEqual(sent.at(-1), {type: 'confirmResult', id: 8, confirmed: false});
+  firstPanel.messageHandler({type: 'confirm', id: 8, message: '删除整条批注？'});
+  await tick();
+  assert.deepEqual(firstPanel.sent.at(-1), {type: 'confirmResult', id: 8, confirmed: false});
 
-  // 编辑器标题栏命令导出：默认文件名为 xxx.md.html，内容是独立 HTML。
+  // mdhtml 界面的导出按钮：把最新 Markdown 交给扩展写盘。
+  lastWrite = undefined;
+  firstPanel.messageHandler({type: 'exportHtml', markdown: '# Export\n', documentUri: first.uri.toString()});
+  await tick();
+  assert.equal(lastWrite.uri.fsPath, '/tmp/first.md.html');
+  assert.match(lastWrite.data.toString('utf8'), /<title>Export<\/title>/);
+  assert.deepEqual(firstPanel.sent.at(-1), {type: 'exportHtmlResult', ok: true, path: '/tmp/first.md.html'});
+
+  // 编辑器标题栏导出：mdhtml 自定义编辑器激活时也能找到文档。
+  firstPanel.active = true;
+  vscode.window.activeTextEditor = undefined;
   lastWrite = undefined;
   await commands.get('mdhtml.exportHtml')();
   assert.equal(lastWrite.uri.fsPath, '/tmp/first.md.html');
-  const commandHtml = lastWrite.data.toString('utf8');
-  assert.match(commandHtml, /<title>First<\/title>/);
-  assert.doesNotMatch(commandHtml, /Content-Security-Policy/);
-  assert.doesNotMatch(commandHtml, /@@VIEWER@@/);
-  const commandSource = commandHtml.match(/<script id="md-source" type="text\/markdown">([\s\S]*?)<\/script>/)[1];
-  assert.equal(commandSource.replace(/<\\\/script/gi, '</script').replace(/\\\\/g, '\\'), '# First\n');
-  assert.equal(infoMessages.at(-1), '已导出 first.md.html');
+  assert.match(lastWrite.data.toString('utf8'), /<title>External<\/title>/);
 
-  // 预览面板按钮导出：把最新 Markdown 交给扩展写盘，并回传结果。
-  lastWrite = undefined;
-  listeners.message({type: 'exportHtml', markdown: '# Export\n', documentUri: second.uri.toString()});
-  await new Promise(resolve => setImmediate(resolve));
-  assert.equal(lastWrite.uri.fsPath, '/tmp/second.md.html');
-  assert.match(lastWrite.data.toString('utf8'), /<title>Export<\/title>/);
-  assert.deepEqual(sent.at(-1), {type: 'exportHtmlResult', ok: true, path: '/tmp/second.md.html'});
+  // “用 mdhtml 打开”把文本编辑器的当前标签页替换为 mdhtml。
+  firstPanel.active = false;
+  vscode.window.activeTextEditor = {document: second};
+  const callsBefore = executeCalls.length;
+  await commands.get('mdhtml.openPreview')();
+  assert.deepEqual(executeCalls.at(-1), ['vscode.openWith', second.uri, 'mdhtml.editor']);
+  assert.equal(executeCalls.length, callsBefore + 1);
+
+  // 每个文档有独立的 webview；切换文档互不影响，关闭后停止接收更新。
+  vscode.window.activeTextEditor = undefined;
+  const secondPanel = createPanel();
+  customEditor.provider.resolveCustomTextEditor(second, secondPanel);
+  assert.match(secondPanel.webview.html, /window.mdhtmlDocumentUri = "file:\/\/\/tmp\/second.md"/);
+  const firstSent = firstPanel.sent.length;
+  second.value = '# Second changed\n';
+  for (const handler of changes) handler({document: second});
+  assert.equal(firstPanel.sent.length, firstSent);
+  assert.equal(secondPanel.sent.at(-1).markdown, '# Second changed\n');
+  secondPanel.disposeHandler();
+  const secondSent = secondPanel.sent.length;
+  second.value = '# Second again\n';
+  for (const handler of changes) handler({document: second});
+  assert.equal(secondPanel.sent.length, secondSent);
 
   // 导出时把本地 .drawio 图片引用展开为代码块并内联 viewer。
   const diagram = document('diagram.md', '# Diagram\n\n![](media/a.drawio)\n');
@@ -200,6 +248,7 @@ setImmediate(async () => {
     .replace(/<\\\/script/gi, '</script').replace(/\\\\/g, '\\');
   assert.match(brokenSource, /!\[\]\(missing\.drawio\)/);
 
-  listeners.dispose();
-  console.log('VSCode preview panel: OK');
+  assert.equal(errorMessages.length, 0);
+  assert.equal(infoMessages.at(-1), '已导出 broken.md.html');
+  console.log('VSCode custom editor: OK');
 });

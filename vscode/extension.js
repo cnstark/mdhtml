@@ -103,31 +103,17 @@ function activate(context) {
   };
   const template = resource('template.html', 'template.html');
   const viewerCode = resource('vendor/viewer-static.min.js', 'viewer-static.min.js');
-  let panel = null;
-  let panelDocument = null;
-  let pendingDocument = null;
-  let saveQueue = Promise.resolve();
-  // 预览面板保存写入的文档内容；随后的 change 事件不再回传给 webview，避免回声。
-  let webviewEcho = null;
+  // 每个打开的 mdhtml 自定义编辑器；导出命令据此找到当前活动的 webview 文档。
+  const editors = new Set();
 
-  const isMarkdownEditor = editor => editor && editor.document.uri.fsPath.toLowerCase().endsWith('.md');
+  const isMarkdownDocument = document => !!document && document.uri.fsPath.toLowerCase().endsWith('.md');
   // 目录 URI 的 toString() 不带尾部斜杠，而相对图片路径要拼在目录后面；
-  // 切文档后这里若漏了斜杠，所有本地图片和 drawio 都会 404。
+  // 漏了斜杠时所有本地图片和 drawio 都会 404。
   const resourceBase = (webview, document) =>
     webview.asWebviewUri(vscode.Uri.joinPath(document.uri, '..')).toString().replace(/\/?$/, '/');
-  const sendDocument = document => {
-    if (!panel || !document) return;
-    if (document.uri.toString() === panelDocument?.uri.toString()) {
-      if (pendingDocument) {
-        pendingDocument = null;
-        panel.webview.postMessage({type: 'setContent', markdown: document.getText(),
-          documentUri: document.uri.toString(), resourceBase: resourceBase(panel.webview, document)});
-      }
-      return;
-    }
-    pendingDocument = document;
-    panel.webview.postMessage({type: 'setContent', markdown: document.getText(),
-      documentUri: document.uri.toString(), resourceBase: resourceBase(panel.webview, document)});
+  const activeEditor = () => {
+    for (const entry of editors) if (entry.panel.active) return entry;
+    return null;
   };
 
   const exportMarkdown = async (document, markdown) => {
@@ -167,118 +153,109 @@ function activate(context) {
     }
   };
 
-  const openPreview = () => {
-    const editor = vscode.window.activeTextEditor;
-    if (!isMarkdownEditor(editor)) return;
-    const document = editor.document;
-    if (panel) {
-      sendDocument(document);
-      panel.reveal(vscode.ViewColumn.Beside, true);
-      return;
-    }
-    panel = vscode.window.createWebviewPanel('mdhtml.preview', `mdhtml 预览：${path.basename(document.uri.fsPath)}`, vscode.ViewColumn.Beside,
-      {enableScripts: true, retainContextWhenHidden: true});
-    panelDocument = document;
-    const webview = panel.webview;
-    webview.html = buildWebviewHtml(template, document.getText(), {
-      fileName: path.basename(document.uri.fsPath), viewerCode, alwaysViewer: true,
-      cspSource: webview.cspSource, resourceBase: resourceBase(webview, document),
-      documentUri: document.uri.toString()
-    });
-    const messageListener = webview.onDidReceiveMessage(message => {
-      if (!message || typeof message !== 'object') return;
-      if (message.type === 'contentApplied' && pendingDocument?.uri.toString() === message.documentUri) {
-        panelDocument = pendingDocument;
-        pendingDocument = null;
-        panel.title = `mdhtml 预览：${path.basename(panelDocument.uri.fsPath)}`;
-        webview.postMessage({type: 'setContent', markdown: panelDocument.getText(),
-          documentUri: panelDocument.uri.toString()});
-        return;
-      }
-      if (message.type === 'contentReady' && pendingDocument) {
-        sendDocument(pendingDocument);
-        return;
-      }
-      if (message.type === 'exportHtml') {
-        if (typeof message.markdown !== 'string' || message.documentUri !== panelDocument?.uri.toString()) {
-          webview.postMessage({type: 'exportHtmlResult', ok: false, error: '文档已切换，请重试'});
+  const provider = {
+    resolveCustomTextEditor(document, webviewPanel) {
+      const webview = webviewPanel.webview;
+      webview.options = {enableScripts: true};
+      webview.html = buildWebviewHtml(template, document.getText(), {
+        fileName: path.basename(document.uri.fsPath), viewerCode, alwaysViewer: true,
+        cspSource: webview.cspSource, resourceBase: resourceBase(webview, document),
+        documentUri: document.uri.toString()
+      });
+      const entry = {document, panel: webviewPanel};
+      editors.add(entry);
+      let saveQueue = Promise.resolve();
+      // 编辑器保存写入的文档内容；随后的 change 事件不再回传给 webview，避免回声。
+      let webviewEcho = null;
+      const changeListener = vscode.workspace.onDidChangeTextDocument(event => {
+        if (event.document.uri.toString() !== document.uri.toString()) return;
+        const text = event.document.getText();
+        if (webviewEcho && webviewEcho.uri === event.document.uri.toString() && webviewEcho.text === text) {
+          webviewEcho = null;
           return;
         }
-        const target = panelDocument;
-        exportMarkdown(target, message.markdown).then(result => webview.postMessage({type: 'exportHtmlResult', ...result}));
-        return;
-      }
-      if (message.type === 'confirm') {
-        Promise.resolve(vscode.window.showWarningMessage(String(message.message || ''), {modal: true}, '删除'))
-          .then(choice => webview.postMessage({type: 'confirmResult', id: message.id, confirmed: choice === '删除'}));
-        return;
-      }
-      if (message.type !== 'save' || typeof message.markdown !== 'string') return;
-      if (message.documentUri !== panelDocument?.uri.toString()) {
-        // 不能静默丢弃，否则 webview 的保存状态会一直卡住。
-        webview.postMessage({type: 'saveResult', id: message.id, ok: false, error: '文档已切换，请重试保存'});
-        return;
-      }
-      const target = panelDocument;
-      saveQueue = saveQueue.catch(() => {}).then(async () => {
-        try {
-          const before = target.getText();
-          if (before !== message.markdown) {
-            if (before !== message.baseMarkdown) throw new Error('文档已更新，请检查批注后重试保存');
-            let start = 0;
-            while (start < before.length && start < message.markdown.length &&
-              before[start] === message.markdown[start]) start++;
-            let end = 0;
-            while (end < before.length - start && end < message.markdown.length - start &&
-              before[before.length - 1 - end] === message.markdown[message.markdown.length - 1 - end]) end++;
-            const edit = new vscode.WorkspaceEdit();
-            edit.replace(target.uri, new vscode.Range(target.positionAt(start), target.positionAt(before.length - end)),
-              message.markdown.slice(start, message.markdown.length - end));
-            webviewEcho = {uri: target.uri.toString(), text: message.markdown};
-            try {
-              if (!await vscode.workspace.applyEdit(edit)) throw new Error('WorkspaceEdit 未能更新文档');
-            } catch (error) {
-              webviewEcho = null;
-              throw error;
-            }
-          }
-          webview.postMessage({type: 'saveResult', id: message.id, ok: true});
-        } catch (error) {
-          webview.postMessage({type: 'saveResult', id: message.id, ok: false, error: String(error.message || error)});
-        }
+        webviewEcho = null;
+        webview.postMessage({type: 'setContent', markdown: text, documentUri: document.uri.toString(),
+          resourceBase: resourceBase(webview, document)});
       });
-    });
-    panel.onDidDispose(() => {
-      messageListener.dispose();
-      panel = null;
-      panelDocument = null;
-      pendingDocument = null;
-    });
+      const messageListener = webview.onDidReceiveMessage(message => {
+        if (!message || typeof message !== 'object') return;
+        if (message.type === 'exportHtml') {
+          if (typeof message.markdown !== 'string' || message.documentUri !== document.uri.toString()) {
+            webview.postMessage({type: 'exportHtmlResult', ok: false, error: '文档已切换，请重试'});
+            return;
+          }
+          exportMarkdown(document, message.markdown)
+            .then(result => webview.postMessage({type: 'exportHtmlResult', ...result}));
+          return;
+        }
+        if (message.type === 'confirm') {
+          Promise.resolve(vscode.window.showWarningMessage(String(message.message || ''), {modal: true}, '删除'))
+            .then(choice => webview.postMessage({type: 'confirmResult', id: message.id, confirmed: choice === '删除'}));
+          return;
+        }
+        if (message.type !== 'save' || typeof message.markdown !== 'string') return;
+        if (message.documentUri !== document.uri.toString()) {
+          // 不能静默丢弃，否则 webview 的保存状态会一直卡住。
+          webview.postMessage({type: 'saveResult', id: message.id, ok: false, error: '文档已切换，请重试保存'});
+          return;
+        }
+        saveQueue = saveQueue.catch(() => {}).then(async () => {
+          try {
+            const before = document.getText();
+            if (before !== message.markdown) {
+              if (before !== message.baseMarkdown) throw new Error('文档已更新，请检查批注后重试保存');
+              let start = 0;
+              while (start < before.length && start < message.markdown.length &&
+                before[start] === message.markdown[start]) start++;
+              let end = 0;
+              while (end < before.length - start && end < message.markdown.length - start &&
+                before[before.length - 1 - end] === message.markdown[message.markdown.length - 1 - end]) end++;
+              const edit = new vscode.WorkspaceEdit();
+              edit.replace(document.uri, new vscode.Range(document.positionAt(start), document.positionAt(before.length - end)),
+                message.markdown.slice(start, message.markdown.length - end));
+              webviewEcho = {uri: document.uri.toString(), text: message.markdown};
+              try {
+                if (!await vscode.workspace.applyEdit(edit)) throw new Error('WorkspaceEdit 未能更新文档');
+              } catch (error) {
+                webviewEcho = null;
+                throw error;
+              }
+            }
+            // applyEdit 只更新编辑器缓冲区（标签页会显示未保存）；mdhtml 的保存必须落盘。
+            if (document.isDirty && !await document.save()) throw new Error('文档保存失败');
+            webview.postMessage({type: 'saveResult', id: message.id, ok: true});
+          } catch (error) {
+            webview.postMessage({type: 'saveResult', id: message.id, ok: false, error: String(error.message || error)});
+          }
+        });
+      });
+      webviewPanel.onDidDispose(() => {
+        editors.delete(entry);
+        changeListener.dispose();
+        messageListener.dispose();
+      });
+    }
   };
 
-  context.subscriptions.push(vscode.commands.registerCommand('mdhtml.openPreview', openPreview));
-  context.subscriptions.push(vscode.commands.registerCommand('mdhtml.exportHtml', async () => {
+  context.subscriptions.push(vscode.window.registerCustomEditorProvider('mdhtml.editor', provider,
+    {webviewOptions: {retainContextWhenHidden: true}}));
+  context.subscriptions.push(vscode.commands.registerCommand('mdhtml.openPreview', () => {
+    if (activeEditor()) return;
     const editor = vscode.window.activeTextEditor;
-    if (!isMarkdownEditor(editor)) {
+    if (!isMarkdownDocument(editor?.document)) {
       vscode.window.showWarningMessage('请先打开一个 Markdown 文件');
       return;
     }
-    await exportMarkdown(editor.document, editor.document.getText());
+    return vscode.commands.executeCommand('vscode.openWith', editor.document.uri, 'mdhtml.editor');
   }));
-  context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
-    if (panel && isMarkdownEditor(editor)) sendDocument(editor.document);
-  }));
-  context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(event => {
-    if (!panel || pendingDocument || !panelDocument || event.document.uri.toString() !== panelDocument.uri.toString()) return;
-    const text = event.document.getText();
-    // 这次变更来自预览面板自己的保存：webview 会用 saveResult 更新基线，
-    // 回传 setContent 反而会在保存完成前被判成冲突。
-    if (webviewEcho && webviewEcho.uri === event.document.uri.toString() && webviewEcho.text === text) {
-      webviewEcho = null;
+  context.subscriptions.push(vscode.commands.registerCommand('mdhtml.exportHtml', async () => {
+    const document = activeEditor()?.document || vscode.window.activeTextEditor?.document;
+    if (!isMarkdownDocument(document)) {
+      vscode.window.showWarningMessage('请先打开一个 Markdown 文件');
       return;
     }
-    webviewEcho = null;
-    panel.webview.postMessage({type: 'setContent', markdown: text, documentUri: panelDocument.uri.toString()});
+    await exportMarkdown(document, document.getText());
   }));
 }
 

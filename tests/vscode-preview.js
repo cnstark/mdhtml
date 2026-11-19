@@ -46,7 +46,6 @@ const executeCalls = [];
 const infoMessages = [];
 const warningMessages = [];
 const errorMessages = [];
-const outputChannels = [];
 let warningChoice;
 let lastWrite;
 let customEditor;
@@ -69,12 +68,6 @@ const vscode = {
   },
   window: {
     activeTextEditor: {document: first},
-    createOutputChannel(name) {
-      const lines = [];
-      const channel = {name, lines, appendLine(line) { lines.push(line); }, dispose() {}};
-      outputChannels.push(channel);
-      return channel;
-    },
     registerCustomEditorProvider(viewType, provider, options) {
       customEditor = {viewType, provider, options};
       return disposable;
@@ -144,29 +137,6 @@ assert.match(firstPanel.webview.html, /window.mdhtmlDocumentUri = "file:\/\/\/tm
 assert.match(firstPanel.webview.html, /window\.mdhtmlResourceBase = "vscode-webview:\/\/tmp\/";/);
 assert.match(firstPanel.webview.html, /id="drawio-viewer"/);
 assert.notEqual(firstPanel.webview.html, fs.readFileSync('vscode/template.html', 'utf8'));
-
-// webview 内的探针消息落到 Output 和磁盘日志，白屏时可以拿到失败阶段。
-const webviewLog = outputChannels.find(channel => channel.name === 'mdhtml webview');
-assert.ok(webviewLog);
-assert.ok(webviewLog.lines.some(line => line.includes('[load]') && line.includes('csp=')));
-firstPanel.messageHandler({type: 'webviewBoot', href: 'vscode-webview://x', readyState: 'loading'});
-assert.ok(webviewLog.lines.some(line => line.includes('[boot]') && line.includes('readyState=loading')));
-firstPanel.messageHandler({type: 'webviewReady', href: 'vscode-webview://x'});
-assert.ok(webviewLog.lines.some(line => line.includes('[ready]')));
-firstPanel.messageHandler({type: 'webviewState', title: 'T', blocks: 3, viewerChars: 42,
-  viewerWidth: 800, viewerHeight: 600, display: 'block'});
-assert.ok(webviewLog.lines.some(line => line.includes('[state]') && line.includes('blocks=3')));
-firstPanel.messageHandler({type: 'archifyFrame', status: 'load', src: 'https://x/fig.html', index: 0});
-assert.ok(webviewLog.lines.some(line => line.includes('[archify] load') && line.includes('https://x/fig.html')));
-firstPanel.messageHandler({type: 'archifyFrame', status: 'fetch', detail: 'status=200 type=text/html bytes=839019 head=<!DOCTYPE html>',
-  src: 'https://x/fig.html', index: 0});
-assert.ok(webviewLog.lines.some(line => line.includes('[archify] fetch') && line.includes('status=200')
-  && line.includes('bytes=839019')));
-firstPanel.messageHandler({type: 'archifyFrame', status: 'srcdoc', detail: 'bytes=839019',
-  src: 'https://x/fig.html', index: 0});
-assert.ok(webviewLog.lines.some(line => line.includes('[archify] srcdoc') && line.includes('bytes=839019')));
-firstPanel.messageHandler({type: 'webviewError', message: 'boom', stack: 'at x', href: 'h'});
-assert.ok(webviewLog.lines.some(line => line.includes('[webview error]') && line.includes('boom')));
 
 first.value = '# Changed\n';
 for (const handler of changes) handler({document: first});

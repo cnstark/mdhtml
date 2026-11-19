@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const template = fs.readFileSync(path.join(__dirname, '..', 'template.html'), 'utf8');
 const app = template.match(/<script id="mdhtml-app">\n([\s\S]*?)<\/script>/)[1];
 const start = app.indexOf('function tokenizeMarkdown(');
-const end = app.indexOf('/* 诊断探针', start);
+const end = app.indexOf('/* 模板的 Base64', start);
 const tokenizeMarkdown = vm.runInNewContext(app.slice(start, end) + '\ntokenizeMarkdown');
 const unit = '# 长文档 Heading\n> 引用 **加粗** 和 [链接](https://example.com)\n- [x] 任务 `code` 与普通文字。\n';
 const source = unit.repeat(Math.ceil(300000 / unit.length)).slice(0, 300000);

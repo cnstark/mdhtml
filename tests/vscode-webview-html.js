@@ -47,27 +47,10 @@ assert.match(html, /img-src data:/);
 assert.match(html, /img-src data: vscode-resource:/);
 assert.match(html, /connect-src vscode-resource:/);
 assert.ok(html.indexOf('window.mdhtmlResourceBase') < html.indexOf('<script id="md-source"'));
-// 引导探针单独成段，应用脚本解析失败时仍能回报，用来区分“没加载”和“脚本报错”。
-assert.match(html, /<script id="mdhtml-boot">/);
-assert.ok(html.indexOf('<script id="mdhtml-boot">') < html.indexOf('<script id="md-source"'));
-assert.match(template, /window\.__mdhtmlHost = typeof window\.acquireVsCodeApi/);
-assert.match(template, /type:"webviewState", href:location\.href/);
-assert.match(template, /blocks:viewer\.childElementCount/);
-// archify iframe 的加载结果单独回报，区分“资源没加载”和“加载了但内部空白”。
-assert.match(template, /type:"archifyFrame", status, detail:detail \|\| "", src:url, index/);
-assert.match(template, /frame\.addEventListener\("load"/);
-assert.match(template, /reportFrame\("timeout"\)/);
-assert.match(template, /frameSrc:/);
-// 记录 iframe 是否在首屏外，避免把懒加载未触发误判成加载失败。
-assert.match(template, /frameTop:/);
-assert.match(template, /viewportHeight:window\.innerHeight/);
-// 用 fetch 复核资源状态：区分 401/404 与“加载了但内容空白”。
-assert.match(template, /reportFrame\("fetch", `status=/);
-assert.match(template, /securitypolicyviolation/);
 // webview 下资源能取到但 src 文档渲染为空，改为读取同一文件后用 srcdoc 渲染。
 assert.match(template, /await response\.text\(\)/);
 assert.match(template, /frame\.srcdoc = text/);
-assert.match(template, /reportFrame\("srcdoc", `bytes=\$\{text\.length\}`\)/);
+assert.match(template, /frame\.addEventListener\("load"/);
 // VSCode 下直接导航到资源 URL 只会得到空文档，因此不设 src；浏览器模式仍走 src。
 assert.match(template, /if \(vscodeHost\) frame\.style\.visibility = "hidden";\s*else frame\.src = url;/);
 assert.match(template, /if \(vscodeHost && !srcdocApplied\) return;/);

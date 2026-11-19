@@ -187,15 +187,6 @@ body.lightbox-open{overflow:hidden}
 </style>
 </head>
 <body>
-<script id="mdhtml-boot">
-/* 引导探针：独立于应用脚本，应用脚本解析失败时仍能回报，用来区分“没加载”和“脚本报错”。 */
-try {
-  window.__mdhtmlHost = typeof window.acquireVsCodeApi === "function" ? window.acquireVsCodeApi() : null;
-  if (window.__mdhtmlHost) window.__mdhtmlHost.postMessage({type:"webviewBoot", href:location.href, readyState:document.readyState});
-} catch (error) {
-  window.__mdhtmlBootError = String(error && error.message || error);
-}
-</script>
 <script id="md-source" type="text/markdown">@@MD@@</script>
 <header><button id="outline-toggle" type="button" aria-label="切换大纲" aria-expanded="true" aria-controls="outline">☰</button><strong id="doc-title">文档</strong><span id="save-state"><span id="document-path"><span id="path-prefix"></span><span id="path-name"></span></span><span id="connection-status"></span><span id="dirty-indicator">未保存更改</span></span><span id="status" role="status" aria-live="polite"></span><div id="search-box" role="search"><input id="search-input" type="search" aria-label="搜索 Markdown 源码" placeholder="搜索全文"><span id="search-count" role="status" aria-live="polite"></span><button id="search-close" type="button" aria-label="关闭搜索">×</button></div><div class="toolbar"><button id="search-toggle" type="button" aria-label="搜索全文">搜索</button><button id="theme-toggle" type="button" aria-label="切换主题">主题</button><div id="zoom-control" role="group" aria-label="正文缩放"><button id="zoom-out" type="button" aria-label="缩小正文" title="缩小正文（Ctrl/⌘ -）">−</button><button id="zoom-reset" type="button" aria-label="正文缩放 100%" title="正文缩放 100%">100%</button><button id="zoom-in" type="button" aria-label="放大正文" title="放大正文（Ctrl/⌘ +）">+</button></div><div id="width-control" role="group" aria-label="正文宽度"><button id="width-out" type="button" aria-label="缩小正文宽度" title="缩小正文宽度">−</button><button id="width-reset" type="button" aria-label="正文宽度 880px" title="正文宽度 880px">880px</button><button id="width-in" type="button" aria-label="加宽正文" title="加宽正文">+</button></div><button id="edit-toggle" type="button">编辑</button><button id="export-md" type="button" aria-label="导出 Markdown 源码">导出 MD</button><button id="export-html" type="button" aria-label="导出 .md.html" title="导出为单文件 .md.html">导出 HTML</button><button id="save" type="button">保存</button></div></header>
 <div id="outline-backdrop" aria-hidden="true"></div><div class="layout"><nav id="outline" aria-label="文档大纲"><h2>大纲</h2><div id="outline-links"></div></nav><main id="main"><article id="viewer" class="markdown-body"></article><div id="editor"><div class="source-pane"><pre class="hl-layer editor-text" aria-hidden="true"><code id="highlighted-source"></code></pre><textarea id="source-editor" class="editor-text" spellcheck="false" aria-label="Markdown 源码"></textarea></div><article id="preview" class="markdown-body"></article></div></main><aside id="notes-panel" aria-label="批注"><h2><button id="notes-toggle" type="button" aria-expanded="true">批注</button> <span id="notes-count"></span></h2><div id="notes-tabs" role="tablist" aria-label="批注分组"><button id="notes-tab-active" type="button" role="tab" data-filter="active" aria-selected="true" aria-controls="notes-content">进行中</button><button id="notes-tab-archived" type="button" role="tab" data-filter="archived" aria-selected="false" aria-controls="notes-content">已归档</button></div><div id="notes-content"></div></aside></div>
@@ -1610,42 +1601,6 @@ function tokenizeMarkdown(src) {
   }
   return out.join('');
 }
-/* 诊断探针：webview 内部异常回传到扩展宿主，并在页面上直接显示，避免只剩白屏。 */
-let mdhtmlHost = null;
-try {
-  mdhtmlHost = window.__mdhtmlHost !== undefined ? window.__mdhtmlHost
-    : (typeof window.acquireVsCodeApi === "function" ? window.acquireVsCodeApi() : null);
-} catch (error) {
-  console.error("acquireVsCodeApi failed", error);
-  showWebviewFailure("acquireVsCodeApi failed: " + (error && error.message || error));
-}
-if (window.__mdhtmlBootError) showWebviewFailure("boot: " + window.__mdhtmlBootError);
-function showWebviewFailure(message) {
-  if (document.getElementById("mdhtml-failure")) return;
-  const box = document.createElement("pre");
-  box.id = "mdhtml-failure";
-  box.style.cssText = "position:fixed;inset:12px;z-index:99999;margin:0;padding:16px;overflow:auto;background:#fff;color:#b00020;border:2px solid #b00020;font:12px/1.5 ui-monospace,monospace;white-space:pre-wrap";
-  box.textContent = "mdhtml webview error:\n" + String(message);
-  document.body.appendChild(box);
-}
-if (mdhtmlHost) {
-  const report = (message, stack) => {
-    try { mdhtmlHost.postMessage({type:"webviewError", message:String(message || "unknown error"), stack:String(stack || ""), href:location.href}); } catch (_) {}
-  };
-  window.addEventListener("error", event => {
-    report(event.message || event.error, event.error && event.error.stack);
-    showWebviewFailure(event.message || event.error);
-  });
-  window.addEventListener("unhandledrejection", event => {
-    const reason = event.reason;
-    report((reason && reason.message) || reason, reason && reason.stack);
-    showWebviewFailure((reason && reason.message) || reason);
-  });
-  // CSP 拦截（例如 iframe 的 frame-src）不会抛异常，只会触发这个事件。
-  document.addEventListener("securitypolicyviolation", event => {
-    report(`CSP ${event.violatedDirective} blocked ${event.blockedURI}`, "");
-  });
-}
 /* 模板的 Base64 副本由 CLI 从 template.html 注入，保存时据此重建完整文件。 */
 const TEMPLATE_BASE64 = "@@TEMPLATE_BASE64@@";
 const TEMPLATE = new TextDecoder().decode(Uint8Array.from(atob(TEMPLATE_BASE64), c => c.charCodeAt(0)));
@@ -1673,7 +1628,7 @@ let restoringHandle = true;
 let savedMarkdown = originalMarkdown;
 let saving = false;
 let feedbackTimer;
-const vscodeHost = mdhtmlHost;
+const vscodeHost = typeof window.acquireVsCodeApi === "function" ? window.acquireVsCodeApi() : null;
 let hostDocumentUri = window.mdhtmlDocumentUri || "";
 let hostRenderTimer;
 let hostSaveTimer;
@@ -2074,7 +2029,6 @@ function renderMarkdown(value, target) {
       slot.textContent = "无法内嵌架构图：请填写相对路径的 .html 文件。";
       return;
     }
-    const index = Number(slot.dataset.archifyIndex);
     const url = hostResourceUrl(src) || src;
     const frame = document.createElement("iframe");
     frame.className = "archify-frame";
@@ -2095,12 +2049,8 @@ function renderMarkdown(value, target) {
     zoomButton.disabled = true;
     tools.appendChild(zoomButton);
     embed.append(tools, frame);
-    let frameLoaded = false;
     let srcdocApplied = false;
     let srcdocText = "";
-    const reportFrame = (status, detail) => {
-      if (vscodeHost) vscodeHost.postMessage({type:"archifyFrame", status, detail:detail || "", src:url, index});
-    };
     zoomButton.addEventListener("click", () => openArchifyLightbox(url, srcdocText));
     // VSCode 的资源 URL 由 webview 提供给页面内的 fetch/子资源；iframe 直接导航到它
     // 只会得到空文档（HTTP 200 且触发 load），所以改为 fetch 同一文件后用 srcdoc 渲染。
@@ -2109,17 +2059,12 @@ function renderMarkdown(value, target) {
     frame.addEventListener("load", () => {
       // 无 src 的 iframe 在 srcdoc 写入前也会先触发一次空白文档 load，忽略它。
       if (vscodeHost && !srcdocApplied) return;
-      frameLoaded = true;
       frame.style.visibility = "";
       zoomButton.disabled = false;
-      reportFrame("load");
     });
-    frame.addEventListener("error", () => reportFrame("error"));
     if (vscodeHost) {
       fetch(url).then(async response => {
         const text = await response.text();
-        reportFrame("fetch", `status=${response.status} type=${response.headers.get("content-type") || ""} `
-          + `bytes=${text.length} head=${text.slice(0, 24)}`);
         if (!response.ok || !text) throw new Error(`HTTP ${response.status}`);
         if (!frame.isConnected) return;
         srcdocApplied = true;
@@ -2127,9 +2072,7 @@ function renderMarkdown(value, target) {
         frame.srcdoc = text;
         // 懒加载可能还没触发 iframe 的 load，但浮层随时可打开。
         zoomButton.disabled = false;
-        reportFrame("srcdoc", `bytes=${text.length}`);
-      }).catch(error => {
-        reportFrame("fetch-error", String(error && error.message || error));
+      }).catch(() => {
         if (!frame.isConnected) return;
         tools.remove();
         const box = document.createElement("div");
@@ -2138,8 +2081,6 @@ function renderMarkdown(value, target) {
         frame.replaceWith(box);
       });
     }
-    // 懒加载的 iframe 只有滚动到附近才会发请求；超时只用于定位，不改变页面内容。
-    setTimeout(() => { if (!frameLoaded) reportFrame("timeout"); }, 10000);
     slot.replaceWith(embed);
   });
   if (viewerScript && window.GraphViewer && diagrams.length) GraphViewer.processElements();
@@ -3356,18 +3297,6 @@ if (migratedAnnotations && !invalidAnnotationBlock) {
 updateSaveState();
 renderView();
 restoreHandle();
-if (vscodeHost) {
-  // 初始化完成后的可见状态：白屏时据此区分“没渲染”和“渲染了但样式/资源异常”。
-  const rect = viewer.getBoundingClientRect();
-  const frames = Array.from(viewer.querySelectorAll("iframe"));
-  vscodeHost.postMessage({type:"webviewState", href:location.href, readyState:document.readyState,
-    title:document.title, blocks:viewer.childElementCount, viewerChars:viewer.textContent.length,
-    viewerWidth:Math.round(rect.width), viewerHeight:Math.round(rect.height),
-    display:getComputedStyle(viewer).display, markdownChars:markdown.length,
-    base:window.mdhtmlResourceBase || "", frames:frames.length, frameSrc:frames[0] ? frames[0].src : "",
-    frameTop:frames[0] ? Math.round(frames[0].getBoundingClientRect().top) : -1, viewportHeight:window.innerHeight});
-  vscodeHost.postMessage({type:"webviewReady", href:location.href});
-}
 </script>
 </body>
 </html>

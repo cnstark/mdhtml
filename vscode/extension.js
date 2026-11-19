@@ -1,7 +1,6 @@
 'use strict';
 
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
@@ -104,16 +103,6 @@ function activate(context) {
   };
   const template = resource('template.html', 'template.html');
   const viewerCode = resource('vendor/viewer-static.min.js', 'viewer-static.min.js');
-  // webview 内部错误只能从页面回传，写到这里便于白屏时定位。
-  const webviewLog = vscode.window.createOutputChannel('mdhtml webview');
-  context.subscriptions.push(webviewLog);
-  // Output 面板在客户端，远程调试时看不到；同时落盘，服务端直接可读。
-  const webviewLogFile = process.env.MDHTML_WEBVIEW_LOG || path.join(os.tmpdir(), 'mdhtml-webview.log');
-  const logWebview = line => {
-    const text = `[${new Date().toISOString()}] ${line}`;
-    webviewLog.appendLine(text);
-    try { fs.appendFileSync(webviewLogFile, `${text}\n`); } catch { /* 日志失败不影响功能 */ }
-  };
   // 每个打开的 mdhtml 自定义编辑器；导出命令据此找到当前活动的 webview 文档。
   const editors = new Set();
 
@@ -176,8 +165,6 @@ function activate(context) {
         cspSource: webview.cspSource, resourceBase: resourceBase(webview, document),
         documentUri: document.uri.toString()
       });
-      console.log(`[mdhtml webview][load] ${new Date().toISOString()} ${document.uri.toString()} bytes=${webview.html.length} roots=${localResourceRoots.length}`);
-      logWebview(`[load] ${document.uri.toString()} bytes=${webview.html.length} roots=${localResourceRoots.length} csp=${webview.cspSource}`);
       const entry = {document, panel: webviewPanel};
       editors.add(entry);
       let saveQueue = Promise.resolve();
@@ -196,31 +183,6 @@ function activate(context) {
       });
       const messageListener = webview.onDidReceiveMessage(message => {
         if (!message || typeof message !== 'object') return;
-        if (message.type === 'webviewError') {
-          console.error(`[mdhtml webview][error] ${new Date().toISOString()} ${message.message}\n${message.stack || ''}\n${message.href || ''}`);
-          logWebview(`[webview error] ${message.message}\n${message.stack || ''}\n${message.href || ''}`);
-          return;
-        }
-        if (message.type === 'webviewBoot') {
-          logWebview(`[boot] href=${message.href || ''} readyState=${message.readyState || ''}`);
-          return;
-        }
-        if (message.type === 'webviewState') {
-          logWebview(`[state] title=${message.title || ''} blocks=${message.blocks} chars=${message.viewerChars} `
-            + `size=${message.viewerWidth}x${message.viewerHeight} display=${message.display} `
-            + `markdownChars=${message.markdownChars} frames=${message.frames} frameSrc=${message.frameSrc || ''} `
-            + `frameTop=${message.frameTop} viewport=${message.viewportHeight} base=${message.base || ''} href=${message.href || ''}`);
-          return;
-        }
-        if (message.type === 'archifyFrame') {
-          logWebview(`[archify] ${message.status} index=${message.index} detail=${message.detail || ''} src=${message.src || ''}`);
-          return;
-        }
-        if (message.type === 'webviewReady') {
-          console.log(`[mdhtml webview][ready] ${new Date().toISOString()} ${message.href || ''}`);
-          logWebview(`[ready] href=${message.href || ''}`);
-          return;
-        }
         if (message.type === 'exportHtml') {
           if (typeof message.markdown !== 'string' || message.documentUri !== document.uri.toString()) {
             webview.postMessage({type: 'exportHtmlResult', ok: false, error: '文档已切换，请重试'});

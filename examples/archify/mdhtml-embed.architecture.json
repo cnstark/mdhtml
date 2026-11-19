@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "mdhtml 内嵌 archify 图",
+    "output": "examples/archify/mdhtml-embed.html",
+    "visual_preset": "signal-flow"
+  },
+  "components": [
+    { "id": "author", "type": "external", "label": "作者", "sublabel": "写 Markdown", "pos": [40, 90], "size": [120, 60] },
+    { "id": "md", "type": "database", "label": "文档.md", "sublabel": "含 archify 引用", "pos": [230, 90], "size": [140, 60] },
+    { "id": "mdhtml", "type": "backend", "label": "mdhtml build", "sublabel": "内联模板与正文", "pos": [440, 90], "size": [150, 60] },
+    { "id": "out", "type": "backend", "label": "文档.md.html", "sublabel": "单文件产物", "pos": [660, 90], "size": [150, 60] },
+    { "id": "browser", "type": "external", "label": "浏览器 / VSCode", "sublabel": "打开产物", "pos": [880, 90], "size": [150, 60] },
+    { "id": "archify", "type": "backend", "label": "archify render", "sublabel": "IR → HTML", "pos": [230, 270], "size": [150, 60] },
+    { "id": "diagram", "type": "backend", "label": "diagram.html", "sublabel": "独立交互图", "pos": [450, 270], "size": [150, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "本地工作区", "wraps": ["md", "mdhtml", "out", "archify", "diagram"] }
+  ],
+  "connections": [
+    { "id": "author-md", "from": "author", "to": "md", "label": "编写" },
+    { "id": "md-build", "from": "md", "to": "mdhtml", "label": "构建" },
+    { "id": "build-out", "from": "mdhtml", "to": "out", "label": "生成" },
+    { "id": "author-archify", "from": "author", "to": "archify", "label": "描述系统", "variant": "emphasis" },
+    { "id": "archify-diagram", "from": "archify", "to": "diagram", "label": "渲染" },
+    { "id": "diagram-out", "from": "diagram", "to": "out", "label": "iframe 引用", "variant": "dashed", "fromSide": "top", "toSide": "bottom" },
+    { "id": "out-browser", "from": "out", "to": "browser", "label": "打开" }
+  ]
+}

@@ -116,6 +116,23 @@ drawio viewer（约 4.7MB）只在 **build 时检测到 drawio 块**才内联。
 - 给没有 drawio 的文档新增 ```drawio 块，必须重新 build（浏览器内保存会提示，但 agent 应直接走 build 流程）
 - 删掉所有 drawio 块后重新 build，产物会瘦回约 300KB
 
+## archify 图
+
+archify 渲染出的交互式 HTML 图由独立文件承载，md 里只放引用代码块：
+
+````markdown
+```archify
+./diagrams/web-app.html
+```
+````
+
+- 路径相对 md 文件所在目录，只接受本地 `.html`/`.htm`；远程地址、绝对路径会被拒绝并显示提示
+- build/extract 不会读取或内联图文件，md 源码保持一行引用；`.md.html` 与图必须一起分发
+- 浏览器直接打开用相对路径；VSCode 扩展会 fetch 同一文件后用 `srcdoc` 渲染（资源 URI 不能直接作为 iframe 导航地址）
+- 默认高度 720px，可拖动 iframe 下边缘调整；右上角「放大」按钮在浮层中打开同一份交互 HTML
+- 图文件缺失时显示提示框
+- 与 drawio 的区别：drawio 的图源内联进产物，archify 的 HTML 始终是外部文件
+
 ## Verification
 
 改完后：

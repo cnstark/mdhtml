@@ -71,7 +71,15 @@ print(greet("mdhtml"))
 </mxfile>
 ```
 
+## archify 内嵌图
 
+下图由独立的 archify HTML 文件承载，`.md.html` 里只保留引用；两者需要一起分发。
+
+```archify
+./archify/mdhtml-embed.html
+```
+
+VSCode 扩展里同样生效，路径会改写为 webview 资源 URI。
 
 <!-- mdhtml-annotations
 [

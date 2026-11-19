@@ -5,7 +5,8 @@ const vm = require('node:vm');
 
 const template = fs.readFileSync(path.join(__dirname, '..', 'template.html'), 'utf8');
 const app = template.match(/<script id="mdhtml-app">\n([\s\S]*?)<\/script>/)[1];
-const code = app.slice(0, app.indexOf('/* 模板的 Base64'));
+// 只取 Anchors IIFE，避免把依赖 window/document 的引导探针带进 vm。
+const code = app.slice(app.indexOf('const Anchors = (() => {'), app.indexOf('// 单次扫描生成安全 HTML'));
 const Anchors = vm.runInNewContext(code + '\nAnchors');
 function note(text, start, end) {
   return {target:{selector:Anchors.makeSelector(text, start, end)}};

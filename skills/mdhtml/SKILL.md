@@ -118,16 +118,20 @@ drawio viewer（约 4.7MB）只在 **build 时检测到 drawio 块**才内联。
 
 ## archify 图
 
-archify 渲染出的交互式 HTML 图由独立文件承载，md 里只放引用代码块：
+archify 渲染出的交互式 HTML 图由独立文件承载，md 里放一张同名预览图 + 紧随其后的注释指令：
 
 ````markdown
-```archify
-./diagrams/web-app.html
-```
+![架构图](./diagrams/web-app.svg)
+
+<!-- mdhtml-archify: ./diagrams/web-app.html -->
 ````
 
+- mdhtml 会把这张图和指令合并成一个交互插槽，图片和注释都不显示；其他 Markdown 阅读器只看到图片，把注释当成普通注释
+- 预览图与 HTML 必须同目录、同主文件名，预览图只接受 `.svg` / `.png`；在 archify 里用 Export → SVG · Light 生成
+- 没有配对图片时仍可只写 `<!-- mdhtml-archify: ./x.html -->`；也可以继续用旧的 ```` ```archify ```` 代码块写法
+- 配对预览图不会被 `--embed-images` 内联，也不需要随 `.md.html` 一起内联
 - 路径相对 md 文件所在目录，只接受本地 `.html`/`.htm`；远程地址、绝对路径会被拒绝并显示提示
-- build/extract 不会读取或内联图文件，md 源码保持一行引用；`.md.html` 与图必须一起分发
+- build/extract 不读取图文件，md 源码保持原样；`.md.html`、HTML 图和预览图必须一起分发
 - 浏览器直接打开用相对路径；VSCode 扩展会 fetch 同一文件后用 `srcdoc` 渲染（资源 URI 不能直接作为 iframe 导航地址）
 - 默认高度 720px，可拖动 iframe 下边缘调整；右上角「放大」按钮在浮层中打开同一份交互 HTML
 - 图文件缺失时显示提示框

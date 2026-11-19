@@ -60,6 +60,7 @@ const context = {
   DOMPurify: {sanitize: html => html},
   viewer, viewerScript: {},
   hljs: {highlightElement() {}},
+  escapeHtml: value => String(value),
   GraphViewer: {processElements() { processed++; }},
   fetch(url) {
     calls.push(url);
@@ -91,6 +92,50 @@ async function run() {
   context.renderMarkdown('```drawio\n<mxGraphModel/>\n```', blockView);
   assert.equal(blockView.nodes[0].className, 'mxgraph');
   assert.equal(JSON.parse(blockView.nodes[0].getAttribute('data-mxgraph')).xml, '<mxGraphModel/>');
+
+  // 兼容其他 Markdown 阅读器：预览图和紧随其后的注释指令合并成一个插槽，
+  // mdhtml 里不再显示图片，其他阅读器只看到图片、把注释当成普通注释。
+  const pairView = target();
+  context.renderMarkdown('## 图\n\n![预览](./archify/a.svg)\n\n<!-- mdhtml-archify: ./archify/a.html -->\n\n后续段落\n', pairView);
+  assert.doesNotMatch(pairView.html, /<img/);
+  assert.doesNotMatch(pairView.html, /mdhtml-archify/);
+  assert.match(pairView.html, /<div class="archify-slot" data-archify-index="0"><\/div>/);
+  assert.match(pairView.html, /后续段落/);
+  // 图片主文件名或所在目录对不上时不配对，图片保持普通图片。
+  const mismatchView = target();
+  context.renderMarkdown('![别的图](./archify/b.svg)\n\n<!-- mdhtml-archify: ./archify/a.html -->\n', mismatchView);
+  assert.match(mismatchView.html, /<img src="\.\/archify\/b\.svg"/);
+  assert.match(mismatchView.html, /data-archify-index="0"/);
+  // 只有指令（没有预览图）时仍然内嵌。
+  const loneView = target();
+  context.renderMarkdown('<!-- mdhtml-archify: ./archify/a.html -->\n', loneView);
+  assert.match(loneView.html, /data-archify-index="0"/);
+  assert.doesNotMatch(loneView.html, /mdhtml-archify/);
+  // 代码围栏里的示例指令只是文字，不能被当成指令处理。
+  const fencedView = target();
+  context.renderMarkdown('```markdown\n![预览](./archify/a.svg)\n\n<!-- mdhtml-archify: ./archify/a.html -->\n```\n', fencedView);
+  assert.doesNotMatch(fencedView.html, /archify-slot/);
+  assert.match(fencedView.html, /mdhtml-archify/);
+  // 带空格的中文路径用尖括号包裹也能配对。
+  const spacedView = target();
+  context.renderMarkdown('![预览](<./archify/图 1.svg>)\n\n<!-- mdhtml-archify: ./archify/图 1.html -->\n', spacedView);
+  assert.doesNotMatch(spacedView.html, /<img/);
+  assert.match(spacedView.html, /data-archify-index="0"/);
+  // 图片路径里的百分号编码与指令里的原始路径等价。
+  const encodedView = target();
+  context.renderMarkdown('![预览](./archify/%E5%9B%BE%201.svg)\n\n<!-- mdhtml-archify: ./archify/图 1.html -->\n', encodedView);
+  assert.doesNotMatch(encodedView.html, /<img/);
+  assert.match(encodedView.html, /data-archify-index="0"/);
+  // 预览图只接受 .svg / .png。
+  const gifView = target();
+  context.renderMarkdown('![预览](./archify/a.gif)\n\n<!-- mdhtml-archify: ./archify/a.html -->\n', gifView);
+  assert.match(gifView.html, /<img/);
+  // 两种写法共用一套索引，同一个文档里可以混用。
+  const mixedView = target();
+  context.renderMarkdown('![预览](./archify/a.svg)\n\n<!-- mdhtml-archify: ./archify/a.html -->\n\n```archify\n./archify/b.html\n```\n', mixedView);
+  assert.match(mixedView.html, /data-archify-index="0"/);
+  assert.match(mixedView.html, /data-archify-index="1"/);
+  assert.doesNotMatch(mixedView.html, /<img/);
 
   // 非 host 环境不改写渲染结果，也不读取外部图文件。
   context.window.mdhtmlResourceBase = undefined;

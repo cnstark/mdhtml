@@ -21,6 +21,8 @@ DRAWIO_BLOCK = re.compile(r'^\s*```drawio(?:\s+[^\n]*)?\n[\s\S]*?^\s*```\s*$', r
 IMAGE = re.compile(r'(!\[[^\]]*\]\(\s*)(<[^>]+>|[^\s)]+)([^\n)]*\))')
 IMAGE_REF = re.compile(r'(?m)^(\s*\[[^\]]+\]:\s*)(<[^>]+>|\S+)(.*)$')
 FENCE = re.compile(r'^ {0,3}(`{3,}|~{3,})')
+ARCHIFY_DIRECTIVE = re.compile(r'^\s*<!--\s*mdhtml-archify:\s*(.+?)\s*-->\s*$')
+PAIRED_IMAGE_LINE = re.compile(r'^\s*!\[[^\]]*\]\(\s*(?:<([^>]+)>|([^)\s]+))(?:\s+(?:"[^"]*"|\'[^\']*\'))?\s*\)\s*$')
 
 
 class ChineseArgumentParser(argparse.ArgumentParser):
@@ -62,10 +64,51 @@ def image_destination(raw, base_dir, embed, warnings):
     return f'data:{mime};base64,{data}'
 
 
+def archify_key(path, extensions):
+    """取配对用的“路径 + 主文件名”；扩展名不属于 extensions 时返回空串。"""
+    path = unquote(re.sub(r'[?#].*$', '', path))
+    if path.startswith('./'):
+        path = path[2:]
+    lowered = path.lower()
+    for extension in extensions:
+        if lowered.endswith(extension):
+            return lowered[:-len(extension)]
+    return ''
+
+
+def archify_preview_destinations(source):
+    """找出与 <!-- mdhtml-archify --> 指令配对的预览图。
+    它们只给其他 Markdown 阅读器看，mdhtml 渲染时会换成插槽，构建时不需要内联。"""
+    lines = source.splitlines()
+    previews = set()
+    for index, line in enumerate(lines):
+        directive = ARCHIFY_DIRECTIVE.match(line)
+        if not directive:
+            continue
+        cursor = index - 1
+        while cursor >= 0 and not lines[cursor].strip():
+            cursor -= 1
+        if cursor < 0:
+            continue
+        image = PAIRED_IMAGE_LINE.match(lines[cursor])
+        if not image:
+            continue
+        preview = image.group(1) or image.group(2)
+        preview_key = archify_key(preview, ('.svg', '.png'))
+        if preview_key and preview_key == archify_key(directive.group(1), ('.html', '.htm')):
+            previews.add(preview)
+    return previews
+
+
 def process_images(source, base_dir, embed):
     warnings = set()
+    previews = archify_preview_destinations(source)
 
     def inline(match):
+        raw = match.group(2)
+        destination = raw[1:-1] if raw.startswith('<') and raw.endswith('>') else raw
+        if destination in previews:
+            return match.group(0)
         return match.group(1) + image_destination(match.group(2), base_dir, embed, warnings) + match.group(3)
 
     source = IMAGE.sub(inline, source)

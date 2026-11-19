@@ -26,6 +26,13 @@ assert.match(template, /@media\(max-width:1100px\)\{#notes-panel\{max-height:non
 // 大纲不显示滚动条，也不为它预留宽度；批注面板悬停时才显示滚动条。
 assert.match(template, /#outline::-webkit-scrollbar\{display:none!important\}/);
 assert.match(template, /#notes-panel::-webkit-scrollbar-thumb\{background:transparent\}/);
+// 批注栏可以像大纲栏一样整体隐藏：工具栏按钮切换 body 类，并同步按钮的展开状态与数量。
+assert.match(template, /id="notes-panel-toggle"/);
+assert.match(template, /aria-controls="notes-panel"/);
+assert.match(template, /body\.notes-closed #notes-panel\{display:none\}/);
+assert.match(template, /document\.body\.classList\.toggle\("notes-closed"\)/);
+assert.match(template, /notesPanelToggle\.setAttribute\("aria-expanded", String\(!closed\)\)/);
+assert.match(template, /document\.getElementById\("notes-panel-count"\)\.textContent/);
 // 正文图片可点击放大。
 assert.match(template, /id="image-lightbox"/);
 assert.match(template, /target\.closest\("#viewer img, #preview img"\)/);
@@ -89,6 +96,10 @@ assert.match(template, /class="archify-slot" data-archify-index/);
 assert.match(template, /\.archify-frame\{display:block;width:100%;height:720px/);
 assert.match(template, /const url = hostResourceUrl\(src\) \|\| src;/);
 assert.match(template, /else frame\.src = url;/);
+// 其他 Markdown 阅读器只认图片：图片 + <!-- mdhtml-archify --> 在渲染前合并成一个插槽。
+assert.match(template, /function extractArchifyPreviews\(value, archifyBlocks\)/);
+assert.match(template, /const prepared = extractArchifyPreviews\(value, archifyBlocks\);/);
+assert.match(template, /marked\.parse\(prepared, \{gfm:true/);
 const extension = fs.readFileSync(path.join(root, 'vscode/extension.js'), 'utf8');
 assert.match(extension, /localResourceRoots/);
 // 只允许本地相对 .html/.htm，避免把远程或绝对路径塞进 iframe。

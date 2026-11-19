@@ -4,11 +4,11 @@
 
 ## 功能
 
-- **查看**：GFM 表格/任务列表、代码高亮、左侧大纲（1–6 级，子标题可逐个折叠）、drawio 图（浏览器内渲染）、archify 图（独立 HTML 文件 iframe 内嵌）、图片点击全屏放大、暗色主题、全文搜索、正文缩放（80%–200%，`Ctrl/⌘ +/-/0`）
+- **查看**：GFM 表格/任务列表、代码高亮、左侧大纲（1–6 级，子标题可逐个折叠）、右侧批注栏（可整体隐藏）、drawio 图（浏览器内渲染）、archify 图（独立 HTML 文件 iframe 内嵌，同名 SVG 作其他阅读器预览）、图片点击全屏放大、暗色主题、全文搜索、正文缩放（80%–200%，`Ctrl/⌘ +/-/0`）
 - **编辑**：Markdown 源码 + 实时预览分屏，编辑界面带语法高亮
 - **批注**：划词批注 + 段落块首位置批注（文档开头直接批注第一个块，可写待办或大纲），支持归档与删除；W3C Web Annotation 格式，附带在 md 源码末尾的 HTML 注释块里，extract 不丢
 - **保存**：File System Access API 原地覆写（Chrome/Edge），其他浏览器降级为下载覆盖
-- **单文件**：应用代码、渲染库、文档数据全部内联，零 CDN 依赖；图片可选 base64 内联；archify 图除外，由同目录的 HTML 文件承载
+- **单文件**：应用代码、渲染库、文档数据全部内联，零 CDN 依赖；图片可选 base64 内联；archify 图和它的预览图除外，由同目录的独立文件承载
 
 ## 截图
 
@@ -33,17 +33,28 @@
 
 ## 嵌入 archify 图
 
-archify 生成的 HTML 图由独立文件承载，Markdown 里只放引用，不内联进 `.md.html`：
+archify 生成的交互 HTML 由独立文件承载，Markdown 里放一张同名预览图，紧跟一条注释指令：
 
-````markdown
-```archify
-./diagrams/web-app.html
+```markdown
+![架构图](./diagrams/web-app.svg)
+
+<!-- mdhtml-archify: ./diagrams/web-app.html -->
 ```
-````
 
+mdhtml 会把这张图和指令合并成一个交互插槽，图片和注释都不显示；不支持 archify 的 Markdown 阅读器则正常显示图片、把注释当成普通注释。在 archify 页面点 Export → SVG · Light 就能生成同名预览图。
+
+- 预览图必须和 HTML 同目录、同主文件名，只接受 `.svg` / `.png`；找不到配对图片时，指令本身也会内嵌交互图；
 - 路径必须相对 `.md` 所在目录，只接受本地 `.html`/`.htm`，不支持远程地址；
-- `.md.html` 和图文件是两份文件，分发时要一起拷贝；
+- 配对预览图不会被 `--embed-images` 内联；`.md.html`、HTML 图和预览图是分开的文件，分发时要一起拷贝；
 - 浏览器直接打开用相对路径加载；VSCode 扩展会读取同一文件后用 `srcdoc` 渲染（iframe 直接导航到 webview 资源 URI 只会得到空文档）；
+- 也支持旧的代码块写法，适合没有预览图、或只在 mdhtml 里查看的场合：
+
+  ````markdown
+  ```archify
+  ./diagrams/web-app.html
+  ```
+  ````
+
 - 图右上角的「放大」按钮会在浮层中打开同一份交互 HTML，节点点击、缩放等交互保留；
 - 图默认高 720px，可拖动下边缘调整；文件缺失时显示空白框。
 

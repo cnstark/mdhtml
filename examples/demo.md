@@ -41,45 +41,17 @@ print(greet("mdhtml"))
 
 下图在源 Markdown 中引用 `arch.drawio`，构建时会展开为内嵌代码块。
 
-
-
-```drawio
-<mxfile host="app.diagrams.net">
-  <diagram id="arch" name="构建流程">
-    <mxGraphModel dx="900" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
-      <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <mxCell id="source" value="Markdown 文档" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="60" y="100" width="150" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="build" value="构建并内联图源" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
-          <mxGeometry x="280" y="100" width="160" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="output" value="离线 HTML" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="510" y="100" width="150" height="60" as="geometry"/>
-        </mxCell>
-        <mxCell id="edge1" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="source" target="build">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-        <mxCell id="edge2" style="endArrow=classic;html=1;rounded=0;" edge="1" parent="1" source="build" target="output">
-          <mxGeometry relative="1" as="geometry"/>
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
-</mxfile>
-```
+![构建流程](./arch.drawio)
 
 ## archify 内嵌图
 
-下图由独立的 archify HTML 文件承载，`.md.html` 里只保留引用；两者需要一起分发。
+下图由独立的 archify HTML 文件承载，`.md.html` 里只保留引用；旁边的同名 SVG 是给其他 Markdown 阅读器的预览图，mdhtml 会隐藏它。这几份文件需要一起分发。
 
-```archify
-./archify/mdhtml-embed.html
-```
+![mdhtml 内嵌 archify 图](./archify/mdhtml-embed.svg)
 
-VSCode 扩展里同样生效，路径会改写为 webview 资源 URI。
+<!-- mdhtml-archify: ./archify/mdhtml-embed.html -->
+
+`<!-- mdhtml-archify: ... -->` 注释本身不会显示；旧的 `` ```archify `` 代码块写法仍然可用。VSCode 扩展里同样生效，路径会改写为 webview 资源 URI。
 
 <!-- mdhtml-annotations
 [

@@ -45,6 +45,21 @@ assert.match(template, /id="width-control"/);
 assert.match(template, /const WIDTH_LEVELS = \[640, 720, 800, 880, 1000, 1120, 1280, 1440, 1600, null\]/);
 assert.match(template, /localStorage\.getItem\("mdhtml-content-width"\)/);
 assert.match(template, /viewer\.style\.maxWidth = contentWidth === null \? "none" : `\$\{contentWidth\}px`/);
+// VSCode webview 默认给 body 注入 var(--vscode-editor-foreground)；模板必须显式继承自身主题色，
+// 否则 VSCode 暗色主题 + mdhtml 亮色时正文变成灰色。
+assert.match(template, /body\{[^}]*color:inherit/);
+// webview 还默认给 code 注入 --vscode-textPreformat-*（暗色主题下是深底黄字）；
+// 行内代码必须显式给出 mdhtml 自己的配色，代码块使用 .hljs 主题色。
+assert.match(template, /\.markdown-body :not\(pre\) > code\{background:#f4f6f8;color:#344551/);
+assert.match(template, /:root\[data-theme="dark"\] \.markdown-body :not\(pre\) > code\{background:#202b33;color:#d6dee4\}/);
+// webview 默认样式还会泄漏 html{scrollbar-color}、body 的 padding/font、链接色、引用底色和 kbd 配色。
+// scrollbar-color 一旦非 auto，Chromium 会忽略模板的 ::-webkit-scrollbar 细滚动条（表格横向滚动条变黑）。
+assert.match(template, /@supports selector\(::-webkit-scrollbar\)\{:root\{scrollbar-color:auto\}\}/);
+assert.match(template, /body\{[^}]*padding:0[^}]*font-family:inherit[^}]*font-size:inherit/);
+assert.match(template, /\.markdown-body a\{color:#0969da;text-decoration:underline\}/);
+assert.match(template, /\.markdown-body blockquote\{color:#63717a;background:transparent\}/);
+assert.match(template, /\.markdown-body kbd\{/);
+assert.match(template, /:root\[data-theme="dark"\] \.markdown-body kbd\{/);
 const markdown = '# 中文 & <标题> "引号"\n\n原样保留 </script>、<\\/script>、\\\\、$& 和 emoji 🌿\n';
 const resourceBase = 'vscode-webview://test/文档</script>/';
 const html = buildWebviewHtml(template, markdown, {fileName:'demo.md', viewerCode, cspSource:'vscode-resource:', resourceBase});
